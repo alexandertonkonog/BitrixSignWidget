@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- <link rel="stylesheet" href="https://charite.me/local/firstbit/index.css" /> -->
+    <link rel="stylesheet" href="css/index.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    
+
+    <section class="UMC-widget">
+      <div class="UMC-widget__form" id="UMC-widget__form">
+        
+        <img
+          class="UMC-widget__medic-img"
+          src="https://charite.me/local/firstbit/images/user.png"
+          alt=""
+        />
+        <div class="UMC-widget__medic">
+          <p class="UMC-widget__medic-name">Иван Иванов</p>
+          <p class="UMC-widget__medic-des"></p>
+          <p class="UMC-widget__medic-des_bold"></p>
+        </div>
+        
+        <div class="UMC-widget__service-area UMC-widget_class-hidden">
+          <p class="UMC-widget__service-title">Услуга: <span></span></p>
+          <ul class="UMC-widget__service-list"></ul>
+        </div>
+        <div class="UMC-widget__preloader-wrapper">
+          <img class="UMC-widget__preloader" src="https://charite.me/local/firstbit/images/load.gif" alt="" />
+        </div>
+        <div class="UMC-widget__calendar-area UMC-widget_class-hidden">
+          <div class="UMC-widget__calendar-container">
+            <div class="UMC-widget__calendar-wrapper">
+              <div class="UMC-widget__calendar"></div>
+              <div class="UMC-widget__calendar-toggle">
+                <img src="https://charite.me/local/firstbit/images/arrow.png" alt="">
+              </div>
+            </div>
+            <div class="UMC-widget__time-area"></div>
+          </div>
+        </div>
+        <p class="UMC-widget__text-first UMC-widget_class-hidden">Чтобы выбрать дату и время приема, выберите услугу</p>
+        <div class="UMC-widget__error-area"></div>
+      </div>
+      <div class="UMC-widget__modal UMC-widget_class-hidden">
+        <div class="UMC-widget__modal-body">
+          <div class="UMC-widget__modal-header">
+            <h3 class="UMC-widget__modal-title">Введите личные данные</h3>
+            <div class="UMC-widget__modal-exit">&times;</div>
+          </div>
+          <div class="UMC-widget__modal-content">
+            <div class="UMC-widget__inputs-wrapper  UMC-widget__modal-screen" data-name="inputs">
+              <div class="UMC-widget__inputs">
+                <div class="UMC-widget__input-wrapper">
+                  <input
+                    class="UMC-widget__input UMC-widget__elem"
+                    placeholder="Имя"
+                    data-name="name"
+                  />
+                </div>
+                <div class="UMC-widget__input-wrapper">
+                  <input
+                    class="UMC-widget__input UMC-widget__elem"
+                    placeholder="Отчество"
+                    data-name="fathername"
+                  />
+                </div>
+                <div class="UMC-widget__input-wrapper">
+                  <input
+                    class="UMC-widget__input UMC-widget__elem"
+                    placeholder="Фамилия"
+                    data-name="surname"
+                  />
+                </div>
+                <div class="UMC-widget__input-wrapper">
+                  <input
+                    class="UMC-widget__input UMC-widget__elem"
+                    placeholder="Телефон"
+                    data-name="number"
+                  />
+                </div>
+                <div class="UMC-widget__input-wrapper UMC-widget_class-hidden">
+                  <input
+                    class="UMC-widget__input UMC-widget__elem"
+                    placeholder="email"
+                    name="email"
+                    data-name="email"
+                  />
+                </div>
+                <div class="UMC-widget__input-wrapper UMC-widget_class-hidden">
+                  <input
+                    class="UMC-widget__input UMC-widget__elem"
+                    placeholder="Адрес"
+                    data-name="address"
+                  />
+                </div>
+                <div class="UMC-widget__input-wrapper UMC-widget_class-hidden">
+                  <input
+                    class="UMC-widget__input UMC-widget__elem"
+                    placeholder="Комментарий"
+                    data-name="comment"
+                  />
+                </div>
+              </div>
+              <p class="UMC-widget__open-input" data-name="address">Адрес</p>
+              <p class="UMC-widget__open-input" data-name="comment">
+                Комментарий
+              </p>
+              <div class="UMC-widget__button-area">
+                <div class="UMC-widget__button" id="UMC-widget__btn-sign">
+                  записаться на прием
+                </div>
+              </div>
+              <p class="UMC-widget__private-text">
+                Нажимая "Записаться на прием", Вы даете согласие на обработку
+                <a class="UMC-widget__private-link" href="#">
+                  персональных данных</a
+                >.
+              </p>
+            </div>
+            <div class="UMC-widget__accept-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="accept">
+              <div class="UMC-widget__input-wrapper">
+                <input
+                  class="UMC-widget__input UMC-widget__elem"
+                  placeholder="Код из смс"
+                  data-name="code"
+                />
+              </div>
+              <p class="UMC-widget__private-text">
+                На Ваш номер в течение нескольких минут придет код подтверждения.
+                Введите его в поле выше.
+              </p>
+              <div class="UMC-widget__button-area">
+                <div class="UMC-widget__button" id="UMC-widget__btn-accept">
+                  подтвердить номер
+                </div>
+              </div>
+            </div>
+            <div class="UMC-widget__success-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="success">
+              <div class="UMC-widget__success-area">
+                  <img class="UMC-widget__success-icon" src="https://charite.me/local/firstbit/images/success.png" alt="" />
+                  <p class="UMC-widget__success-text"></p>
+              </div>
+            </div>
+            <div class="UMC-widget__error-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="error">
+              <div class="UMC-widget__success-area">
+                  <img class="UMC-widget__success-icon" src="https://charite.me/local/firstbit/images/error.png" alt="" />
+                  <p class="UMC-widget__success-text">Произошла ошибка! Попробуйте записаться еще раз или перезагрузите страницу</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="UMC-widget__medic-id UMC-widget_class-hidden" data-medic="f5410d4a-ad61-11e9-bad9-d8cb8a9cbe49"></div>
+    </section>
+    <!-- <a href="">sdsd</a> -->
+    
+    
+    <script src="https://unpkg.com/imask@6.0.7/dist/imask.js"></script>
+    <!-- <script src="https://charite.me/local/firstbit/index.js"></script> -->
+    <script src="js/index.js" defer></script>
+    <script>
+
+    </script>
+  </body>
+</html>
