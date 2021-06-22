@@ -1,4 +1,4 @@
-
+const API_URL = 'https://charite.me/local/firstbit/data.php';
 class Widget {
   error = false;
   errorField = false;
@@ -63,7 +63,7 @@ class Widget {
       method: 'sms',
     }
     try {
-      let data = await fetch("https://charite.me/local/firstbit/data.php", {
+      let data = await fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify(codeMessage)
       });
@@ -78,7 +78,7 @@ class Widget {
     const state = State.getState();	
     const payload = {data: state, method: 'appointment'};
 		try {
-			let data = await fetch("https://charite.me/local/firstbit/data.php", {
+			let data = await fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
@@ -921,7 +921,7 @@ const pageInit = async () => {
         data: reqArray
       }
       
-      let data = await fetch("https://charite.me/local/firstbit/data.php", {
+      let data = await fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify(payload),
       })
