@@ -1,10 +1,13 @@
 const API_URL = 'https://charite.me/local/firstbit/data.php';
+
 class Widget {
   error = false;
   errorField = false;
 
   constructor(item) {
     this.widget = item;
+    this.state = new State();
+    this.state.setField('site_id', window.location.origin);
     this.idContainer = this.widget.querySelector('.UMC-widget__medic-id');
     this.id = this.idContainer.dataset.medic;
     if (!this.id) {
@@ -19,25 +22,25 @@ class Widget {
       window.UMCWidget.list = [];
     }
     window.UMCWidget.list.push(this);
-    window.UMCWidget['Widget'+this.id] = this;
+    window.UMCWidget['Widget' + this.id] = this;
   }
 
   async _init() {
     try {
-      this._togglePreloader(true);
       this._setUser();
       this._widgetInit();
-      this._togglePreloader(false);
     } catch (e) {
-      this._togglePreloader(false);
+      console.log(e)
       Widget._sendError([this.widget]);
     }
   }
 
   _widgetInit() {
     
+    this.serviceGroupArea = new ServiceGroupArea(this);
     this.serviceArea = new ServiceArea(this);
     this.calendar = new Calendar(this);
+    this.timeArea = new TimeArea(this);
 		this.modal = new Modal(this);
 		this.btnArea = new BtnArea(this);
 		this.fieldArea = this.modal.screens.find(item => item.name === 'inputs');
@@ -49,7 +52,7 @@ class Widget {
     if (!this.user) {
       throw new Error('error');
     } else {
-      State.setField("doctor_id", this.id);
+      this.state.setField("doctor_id", this.id);
     }
     
   }
@@ -57,8 +60,8 @@ class Widget {
   async _sendCode() {
     const codeMessage = {
       data: {
-        number: '+' + State.getField('number'),
-        code: State.getCode(),
+        number: '+' + this.state.getField('number'),
+        code: this.state.getCode(),
       },
       method: 'sms',
     }
@@ -74,23 +77,41 @@ class Widget {
   }
 
   async _sendInformation() {
-    
-    const state = State.getState();	
+    const state = this.state.getState();	
     const payload = {data: state, method: 'appointment'};
 		try {
-			let data = await fetch(API_URL, {
+			const data = await fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
+      await this.refreshInformation();
       return await data.json();
 		} catch {
 			this._sendModalError();
 		}
 	}
 
+  async refreshInformation() {
+    const payload = {
+      method: 'schedule',
+      data: [this.id]
+    }
+    
+    let data = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })
+    data = await data.json();
+
+    this.user = data[0];
+    this.calendar.user = this.user;
+    this.calendar.init();
+    this.timeArea.init();
+  }
+
   async checkNumber() {
     this.errorField = false;
-    let fields = State.getRequiredFields();
+    const fields = this.state.getRequiredFields();
     this.fieldArea.fields.forEach((item) => {
       if (fields.includes(item.name) && (item.error || item._isEmpty())) {
         this.errorField = true;
@@ -98,9 +119,9 @@ class Widget {
       }
     });
     if (!this.errorField) {
-      State.setCode(this._createCode());
+      this.state.code = this._createCode();
       this.btnArea._showPreloader(true);
-      let result = await this._sendCode();
+      const result = await this._sendCode();
       this.btnArea._hidePreloader();
       if (result && result.success) {
 				this.modal.setTitle("Подтвердите номер телефона");
@@ -116,7 +137,7 @@ class Widget {
 		if (input.error || input._isEmpty()) {
 			input.sendError();
 		} else {
-			let condition = btoa(input.input.value.trim()) === State.getCode();
+			let condition = btoa(input.input.value.trim()) === this.state.code;
 			if (condition) {
 				this.btnArea._showPreloader(false);
 				let result = await this._sendInformation();
@@ -126,7 +147,7 @@ class Widget {
 					this.successScreen.setData();
 					this.modal._clearInputs();
 					this.modal._changeScreen('success');
-					State.clearState();
+					this.state.clearState();
 				} else {
 					this._sendModalError();
 				}
@@ -136,35 +157,9 @@ class Widget {
 		}
 	}
 
-  _togglePreloader(start) {
-    let preloader = document.querySelector(this.dotName + " .UMC-widget__preloader-wrapper");
-    let form = document.querySelector(this.dotName + " .UMC-widget__calendar-container");
-    if (start) {
-      preloader.classList.remove("UMC-widget_class-hidden");
-      form.classList.add("UMC-widget_class-hidden");
-    } else {
-      preloader.classList.add("UMC-widget_class-hidden");
-      form.classList.remove("UMC-widget_class-hidden");
-    }
-  }
-
   static _sendError(widgets) {
     widgets.forEach(item => {
-      let preloader = item.querySelector(".UMC-widget__preloader-wrapper");
-      let errorArea = item.querySelector('.UMC-widget__error-area');
-      let error = item.querySelector('.UMC-widget__error-wrapper');
-      let serviceArea = item.querySelector('.UMC-widget__service-area');
-      let textFirst = item.querySelector('.UMC-widget__text-first');
-      let text = error.querySelector('.UMC-widget__success-text');
-      let wrapper = document.createElement('div');
-      serviceArea.classList.add('UMC-widget_class-hidden');
-      preloader.classList.add('UMC-widget_class-hidden');
-      textFirst.classList.add('UMC-widget_class-hidden');
-      wrapper.className = 'UMC-widget__calendar-error';
-      error.classList.remove('UMC-widget_class-hidden');
-      text.textContent = 'Не удалось загрузить расписание. Возможно, врач не принимает в ближайшее время. Перезагрузите страницу или зайдите позднее';
-      wrapper.append(error);
-      errorArea.append(wrapper);
+      
     })
   }
 
@@ -187,9 +182,9 @@ class Widget {
 }
 
 class State {
-  static _state = {};
-  static _code;
-  static _requiredFields = [
+  _state = {};
+  _code;
+  _requiredFields = [
     "name",
     "number",
     "surname",
@@ -197,386 +192,369 @@ class State {
     "dateTime",
   ];
 
-  static setField(name, value) {
+  setField(name, value) {
     this._state[name] = value;
   }
 
-  static getField(name) {
+  getField(name) {
     return this._state[name];
   }
 
-  static getState() {
+  getState() {
     return this._state;
   }
 
-  static clearState() {
+  clearState() {
 		this._state = {};
 		this._code = null;
   }
 
-  static getRequiredFields() {
+  getRequiredFields() {
     return this._requiredFields;
   }
 
-  static isRequired(name) {
+  isRequired(name) {
     return this._requiredFields.includes(name);
   }
 
-  static setCode(code) {
-    this._code = btoa(code);
+  set code(val) {
+    this._code = btoa(val);
   }
 
-  static getCode() {
+  get code() {
     return this._code;
   }
 }
 
-class ServiceArea {
+class Block {
+  constructor(item) {
+    this.wrapper = item;
+    this.block = item.querySelector('.shadow-box');
+  }
+
+  show() {
+    this.block.classList.remove('shadow-box_hidden');
+    this.block.classList.remove('shadow-box_loading');
+  }
+
+  hide() {
+    this.block.classList.add('shadow-box_hidden');
+  }
+
+  loading() {
+    this.block.classList.add('shadow-box_loading');
+  }
+}
+
+class ServiceGroupArea extends Block {
   
   serviceList = [];
   activeService = null;
   
   constructor (data) {
+    const area = data.widget.querySelector('.UMC-widget__servicegroups-wrapper');
+    super(area);
     this.widget = data;
     this.id = data.id;
     this.user = data.user;
-    this.wrapper = data.widget.querySelector('.UMC-widget__service-area');
-    this.area = data.widget.querySelector('.UMC-widget__service-list');
-    this.price = data.widget.querySelector('.UMC-widget__service-title span');
+    this.wrapper = area.querySelector('.UMC-widget__service');
     this._init();
   }
   
   _init() {
-    this.wrapper.classList.remove('UMC-widget_class-hidden');
     this._renderServiceItems();
+    this.show();
   }
 
   _renderServiceItems() {
+    this.wrapper.innerHTML = '';
     this.user.services.forEach(item => {
-      let serviceItem = document.createElement('li');
-      let serviceItemSpan = document.createElement('span');
-      serviceItem.classList.add('UMC-widget__service');
-      serviceItemSpan.textContent = item.service_name;
-      serviceItem.dataset.cost = item.service_cost;
-      serviceItem.dataset.id = item.service_id;
-      serviceItem.dataset.time = item.service_time;
-      serviceItem.append(serviceItemSpan);
+      const serviceItem = document.createElement('p');
+      serviceItem.className = ('UMC-widget__service-item');
+      serviceItem.textContent = item.service_name;
       serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
       this.serviceList.push(serviceItem);
-      this.area.append(serviceItem);
+      this.wrapper.append(serviceItem);
     })
   }
 
   _clickServiceItem(node, service) {
     this.serviceList.forEach(item => {
-      item.classList.remove('UMC-widget__service_selected');
+      item.classList.remove('UMC-widget__service-item_selected');
     });
-    node.classList.add('UMC-widget__service_selected');
+    node.classList.add('UMC-widget__service-item_selected');
     this.activeService = service;
-    this.widget.calendar._init();
-    this.price.innerHTML = service.service_cost + ' &#8381;'
-    State.setField('service_id', service.service_id);
+    this.widget.serviceArea.init();
+    this.widget.serviceArea.price = null;
   }
 }
 
-class Calendar {
+class ServiceArea extends Block {
+  
+  serviceList = [];
+  activeService = null;
+  
+  constructor (data) {
+    const area = data.widget.querySelector('.UMC-widget__services-wrapper');
+    super(area);
+    this.widget = data;
+    this.id = data.id;
+    this.user = data.user;
+    this.wrapper = area.querySelector('.UMC-widget__service');
+    this._price = area.querySelector('.UMC-widget__service-header-price');
+  }
+
+  set price(val) {
+    if (val) {
+      this._price.textContent = val + ' р.';
+    } else {
+      this._price.textContent = '';
+    }
+  }
+
+  init() {
+    this._renderServiceItems();
+    this.show();
+  }
+
+  _renderServiceItems() {
+    this.wrapper.innerHTML = '';
+    this.user.services.forEach(item => {
+      const serviceItem = document.createElement('p');
+      serviceItem.className = ('UMC-widget__service-item');
+      serviceItem.textContent = item.service_name;
+      serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
+      this.serviceList.push(serviceItem);
+      this.wrapper.append(serviceItem);
+    })
+  }
+
+  _clickServiceItem(node, service) {
+    this.serviceList.forEach(item => {
+      item.classList.remove('UMC-widget__service-item_selected');
+    });
+    node.classList.add('UMC-widget__service-item_selected');
+    this.activeService = service;
+    this.widget.state.setField('service_id', service.service_id);
+    this.widget.calendar.init();
+    this.widget.calendar.show();
+    this.price = service.service_cost;
+    console.log(service);
+  }
+}
+
+class Calendar extends Block {
   daysOfWeek = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-  first = false;
-  calendarCount = 0;
   calendarElements = [];
-  calendarScreens = [];
-  timeElements = [];
-  timeScreens = [];
-  activeTime = null;
-  countChanges = 0;
   timeArray = [];
+  selectedDay = null;
+  days = [];
+  current = true;
 
   constructor(data) {
+    const area = data.widget.querySelector('.UMC-widget__calendar-wrapper');
+    super(area);
+    
+    this.date = new Date();
     this.widget = data;
     this.id = data.id;
     this.user = data.user;
     this.calendar = data.widget.querySelector(".UMC-widget__calendar");
-    this.timeArea = data.widget.querySelector(".UMC-widget__time-area");
-    this.firstText = data.widget.querySelector(".UMC-widget__text-first");
-    this.calendarArea = data.widget.querySelector(".UMC-widget__calendar-area");
-    this.firstText.classList.remove('UMC-widget_class-hidden');
+    this.arrow = area.querySelector('.UMC-widget__calendar-des-item-icon');
+    this._initEvents();
+    this.init();
   }
 
-  _init() {
+  init() {
     this._clearContainers();
     this._changeTimeFormat();
     this._fetchDays();
-    this._addFillDays();
     this._render();
-    this._initEvents();
-    this.countChanges++;
   }
 
   _changeTimeFormat() {
-    let duration = new Date(this.widget.serviceArea.activeService.service_time);
-    duration = duration.getHours() * 60 + duration.getMinutes();
-    this.user.time.forEach((item, index) => {
-      let start = new Date(item.time_start);
-      let end = new Date(item.time_end);      
+    if (this.widget.serviceArea.activeService) {
+      this.duration = new Date(this.widget.serviceArea.activeService.service_time);
+      this.duration = this.duration.getHours() * 60 + this.duration.getMinutes();
+    } else {
+      this.duration = 30;
+    }
+    this.user.time.forEach((item) => {
+      const start = new Date(item.time_start);
+      const end = new Date(item.time_end);      
       while (start < end) {
         let firstDate = new Date(start.getTime());
-        firstDate.setMinutes(firstDate.getMinutes() + duration);
+        firstDate.setMinutes(firstDate.getMinutes() + this.duration);
         if (firstDate <= end) {
           this.timeArray.push(start.getTime());
         }
-        start.setMinutes(start.getMinutes() + duration);
+        start.setMinutes(start.getMinutes() + this.duration);
       }
     })
   }
 
   _fetchDays() {
-    this.freeDays = [];
-    if (this.timeArray && this.timeArray.length) {
-      this.timeArray.forEach((item) => {
-        let date = new Date(item);
-        let day = {
-          day: date.getDate(),
-          time: [item],
-          dayOfWeek: date.getDay(),
-          month: date.getMonth(),
-          fullDate: date,
-          free: true,
-        };
-        let condition = this.freeDays.find(
-          (item) => item.day === day.day && item.month === day.month
-        );
-        if (!condition) {
-          this.freeDays.push(day);
-        } else {
-          condition.time.push(item);
+    const now = new Date();
+    if (this.current) {
+      const date = new Date();
+      now.setMonth(date.getMonth());
+    } else {
+      const date = new Date();
+      now.setMonth(date.getMonth() + 1);
+    }
+    const month = now.getMonth();
+    const date = now.getDate();
+    now.setDate(1);
+    while (now.getMonth() === month) {
+      const day = {
+        day: now.getDate(),
+        dayOfWeek: now.getDay(),
+        month: now.getMonth(),
+        fullDate: now,
+        free: now >= this.date,
+      };
+      if (this.timeArray.length && day.free) {
+        const elem = this.timeArray.some(item => {
+          const date = new Date(item);
+          return date.getDate() === day.day && date.getMonth() === day.month;
+        })
+        if (!elem) {
+          day.free = false;
         }
-      });
-    }
-  }
-
-  _addFillDays() {
-    let today = new Date();
-    let arr = [];
-    for (let i = 0; i < 14; i++) {
-      let newDate = new Date(today);
-      newDate.setDate(today.getDate() + i);
-      let day = this._createFillDay(newDate);
-      let condition = this.freeDays.find(
-        (item) => item.day === day.day && item.month === day.month
-      );
-      if (!condition) {
-        arr.push(day);
       }
+      this.days.push(day);
+      now.setDate(now.getDate() + 1);
     }
-    let commonArr = [...arr, ...this.freeDays].sort(
-      (a, b) => a.fullDate - b.fullDate
-    );
-    let firstArr = commonArr.filter((item, index) => index <= 6);
-    let secondArr = commonArr.filter((item, index) => index > 6);
-    this.renderDays = [firstArr, secondArr];
-  }
-
-  _createFillDay(date) {
-    return {
-      day: date.getDate(),
-      dayOfWeek: date.getDay(),
-      month: date.getMonth(),
-      fullDate: date,
-      free: false,
-    };
+    const dayOfWeek = this.days[0].dayOfWeek;
+    if (dayOfWeek != 1) {
+      const emptyBoxes = [];
+      for(let i = dayOfWeek; i > 1; i--) {
+        emptyBoxes.push({empty: true});
+      }
+      this.days = [...emptyBoxes.reverse(), ...this.days];
+    }
   }
 
   _render() {
-    
-    this.renderDays.forEach((renderArr, renderIndex) => {
-      let calendarScreen = document.createElement("div");
-      calendarScreen.classList.add("UMC-widget__calendar-screen");
-      calendarScreen.dataset.id = renderIndex;
-      renderArr.forEach((item) => {
-        let day = this._renderCalendarElement(item, this.calendarCount);
-        calendarScreen.append(day);
-        this.calendarElements.push(day);
+    this.days.forEach((item, index) => {
+      const day = document.createElement('p');
+      if (item.empty) {
+        day.className = 'UMC-widget__calendar-item UMC-widget__calendar-item_empty';
+      } else  {
         if (item.free) {
-          let timeScreen = this._renderTimeScreen(item, this.calendarCount);
-          this.timeArea.append(timeScreen);
-          this.timeScreens.push(timeScreen);
+          day.className = 'UMC-widget__calendar-item';
+        } else {
+          day.className = 'UMC-widget__calendar-item UMC-widget__calendar-item_red';
         }
-        this.calendarCount++;
-      });
-      this.calendar.append(calendarScreen);
-      this.calendarScreens.push(calendarScreen);
-    });
-  }
-
-  _renderCalendarElement(item, index) {
-    let day = document.createElement("div");
-    let today = new Date();
-    day.classList.add("UMC-widget__day");
-    if (item.free) {
-      day.classList.add("UMC-widget__day_free");
-    }
-    day.innerHTML = `
-			<div class="UMC-widget__day-top">${this.daysOfWeek[item.dayOfWeek]}</div>
-			<div class="UMC-widget__day-bottom">${item.day}</div>`;
-    if (today.getDate() === item.day && today.getMonth() === item.month) {
-      let dot = document.createElement("div");
-      dot.className = "UMC-widget__day-dot";
-      day.append(dot);
-    }
-    day.dataset.id = index;
-    day.addEventListener("click", () => {
-      if (item.free) {
-        this._clickCalendarElement(day);
+        day.textContent = item.day;
+        day.addEventListener('click', () => this._clickCalendarElement(day, item));
       }
+      this.calendarElements.push(day);
+      this.calendar.append(day);
     });
-    return day;
-  }
-
-  _renderTimeScreen(item, index) {
-    let timeScreen = document.createElement("div");
-    timeScreen.className = "UMC-widget__time-screen UMC-widget_class-hidden";
-    if (!this.first) {
-      this.first = index;
-    }
-    timeScreen.dataset.id = index;
-    item.time.forEach((elem) => {
-      let timeEl = document.createElement("div");
-      timeEl.className = "UMC-widget__time-element-wrapper";
-      let dateTime = new Date(elem);
-      timeEl.innerHTML =
-        '<div class="UMC-widget__time-element">' +
-        ("0" + dateTime.getHours()).slice(-2) +
-        ":" +
-        ("0" + dateTime.getMinutes()).slice(-2) +
-        "</div>";
-      timeEl.dataset.date = dateTime.getDate();
-      timeEl.dataset.month = dateTime.getMonth();
-      timeEl.dataset.year = dateTime.getFullYear();
-      timeEl.dataset.hour = dateTime.getHours();
-      timeEl.dataset.minute = dateTime.getMinutes();
-      timeEl.addEventListener("click", () => {
-        this._clickTimeElement(timeEl);
-      });
-      timeScreen.append(timeEl);
-      this.timeElements.push(timeEl);
-    });
-    return timeScreen;
   }
 
   _clearContainers() {
     this.calendar.innerHTML = '';
-    this.timeArea.innerHTML = '';
-    this.firstText.classList.add('UMC-widget_class-hidden');
-    this.calendarArea.classList.remove('UMC-widget_class-hidden');
-    this.first = false;
-    this.calendarCount = 0;
-    this.calendarElements = [];
-    this.calendarScreens = [];
-    this.timeElements = [];
-    this.timeScreens = [];
+    this.days = [];
     this.timeArray = [];
-    this.activeTime = null;
   }
 
-  _clickCalendarElement(item) {
-    if (!item.classList.contains('UMC-widget__day_disabled')) {
-      let timeScreen = this.timeScreens.find(
-        (elem) => elem.dataset.id === item.dataset.id
-      );
-      this.calendarElements.forEach((elem) =>
-        elem.classList.remove("UMC-widget__day_clicked")
-      );
-      this.timeScreens.forEach((elem) =>
-        elem.classList.add("UMC-widget_class-hidden")
-      );
-      timeScreen.classList.remove("UMC-widget_class-hidden");
-      item.classList.add("UMC-widget__day_clicked");
+  _clickCalendarElement(elem, data) {
+    if (data.free) {
+      this.calendar.querySelectorAll('.UMC-widget__calendar-item').forEach(item => {
+        item.classList.remove('UMC-widget__calendar-item_dark');
+      })
+      elem.classList.add('UMC-widget__calendar-item_dark');
+      this.selectedDay = data;
+      this.widget.timeArea.init();
     }
-  }
-
-  _clickTimeElement(item) {
-    if (!item.classList.contains('UMC-widget__time-element-wrapper_disable')) {
-      this.timeElements.forEach((elem) =>
-        elem.classList.remove("UMC-widget__time-element-wrapper_selected")
-      );
-      item.classList.add("UMC-widget__time-element-wrapper_selected");
-      let data = item.dataset;
-      let formatDate = (num) => {
-        return ("0" + num).slice(-2);
-      };
-      let str =
-        data.year +
-        "-" +
-        formatDate(+data.month + 1) +
-        "-" +
-        formatDate(data.date) +
-        "T" +
-        formatDate(data.hour) +
-        ":" +
-        formatDate(data.minute) +
-        ":00";
-      State.setField("dateTime", str);
-      this.activeTime = item;
-      this.widget.modal._showModal();
-    }
-  }
-  
-  _disableTimeElements() {
-    this.timeElements.forEach(item => {
-      if (!item.classList.contains('UMC-widget__time-element-wrapper_selected')) {
-        item.classList.add('UMC-widget__time-element-wrapper_disable');
-      }
-    })
-  }
-
-  _activeTimeElements() {
-    this.timeElements.forEach(item => item.classList.remove('UMC-widget__time-element-wrapper_disable'))
-  }
-
-  _removeFromScreens() {
-    this.timeScreens.forEach(item => {
-      if (item && !item.childNodes.length) {
-        let day = this.calendarElements.find(elem => item.dataset.id === elem.dataset.id);
-        day.classList.remove('UMC-widget__day_clicked');
-        day.classList.add('UMC-widget__day_disabled');
-        day.classList.remove('UMC-widget__day_free');
-        item.remove(); 
-      }
-    })
-  }
-
-  _toggleCalendarScreens() {
-    let toggler = document.querySelector(this.widget.dotName + " .UMC-widget__calendar-toggle");
-    toggler.classList.toggle("UMC-widget__calendar-toggle_rotate");
-    this.calendarScreens.forEach((item) =>
-      item.classList.toggle("UMC-widget__calendar-screen_translated")
-    );
-  }
-
-  _changeCalendarScreen() {
-    let toggler = document.querySelector(this.widget.dotName + " .UMC-widget__calendar-toggle");
-    toggler.classList.add("UMC-widget__calendar-toggle_rotate");
-    this.calendarScreens.forEach((item) =>
-      item.classList.add("UMC-widget__calendar-screen_translated")
-    );
   }
 
   _initEvents() {
-    let toggler = document.querySelector(this.widget.dotName + " .UMC-widget__calendar-toggle");
-    let day = document.querySelector(
-      this.widget.dotName + ` .UMC-widget__day[data-id="${this.first}"]`
-    );
-    let timeScreen = document.querySelector(
-      this.widget.dotName + ` .UMC-widget__time-screen[data-id="${this.first}"]`
-    );
-    day.classList.add("UMC-widget__day_clicked");
-    timeScreen.classList.remove("UMC-widget_class-hidden");
-    if (!this.countChanges) {
-      toggler.addEventListener("click", () => this._toggleCalendarScreens());
+    this.arrow.addEventListener('click', () => this.changeMonth())
+  }
+
+  changeMonth() {
+    if (this.current) {
+      this.arrow.classList.add('UMC-widget__calendar-des-item-icon_back');
+      this.arrow.setAttribute('title', 'Предыдущий месяц');
+    } else {
+      this.arrow.classList.remove('UMC-widget__calendar-des-item-icon_back');
+      this.arrow.setAttribute('title', 'Следующий месяц');
     }
-    if (this.first > 6) {
-      this._changeCalendarScreen();
-    }
+    this.current = !this.current;
+    this.init();
+  }
+}
+
+class TimeArea extends Block {
+  constructor(data) {
+    const area = data.widget.querySelector('.UMC-widget__time-container');
+    super(area);
+    this.months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    this.widget = data;
+    this.wrapper = area.querySelector('.shadow-box');
+    this.textItem = area.querySelector('.UMC-widget__time-header');
+    const date = new Date();
+    this.setText({day: date.getDate(), month: date.getMonth()});
+  }
+
+  init() {
+    this.wrapper.innerHTML = '';
+    this.day = this.widget.calendar.selectedDay;
+    this.duration = this.widget.calendar.duration;
+    this.timeArray = this.widget.calendar.timeArray.filter(item => {
+      const date = (new Date(item)).getDate();
+      return date === this.day.day;
+    });
+    this.setText(this.day);
+    this._render();
+    this.show();
+  }
+  
+  setText(day) {
+    this.textItem.textContent = `Время записи на ${day.day} ${this.months[day.month]}:`;
+  }
+
+  clickTimeElement(item) {
+    const date = new Date(item);
+    this.widget.state.setField('dateTime', date.toISOString());
+    this.widget.modal._showModal();
+  }
+
+  _render() {
+    this.timeArray.forEach(item => {
+      const dateTime = new Date(item);
+      const start = ("0" + dateTime.getHours()).slice(-2) + ":" + ("0" + dateTime.getMinutes()).slice(-2);
+      dateTime.setMinutes(dateTime.getMinutes() + this.duration);
+      const end = ("0" + dateTime.getHours()).slice(-2) + ":" + ("0" + dateTime.getMinutes()).slice(-2);
+      const timeElement = document.createElement('p');
+      timeElement.className = 'UMC-widget__time-item';
+      
+      let template = `
+        <span class="UMC-widget__time-time">${start}</span>
+        <span class="UMC-widget__time-space"></span>
+        <span class="UMC-widget__time-time">${end}</span>`;
+
+      if (this.day.free) {
+        timeElement.classList.add('UMC-widget__time-item_free');
+        template += `
+          <span class="UMC-widget__time-sign">
+            <span class="UMC-widget__time-sign-icon">+</span>
+          </span>`;
+      } else {
+        template += `
+          <span class="UMC-widget__time-sign">
+            <span class="UMC-widget__time-sign-icon">+</span>
+            Занято
+          </span>`
+      }
+      timeElement.innerHTML = template;
+      const icon = timeElement.querySelector('.UMC-widget__time-sign-icon');
+      icon.addEventListener('click', () => this.clickTimeElement(item));
+      this.wrapper.append(timeElement);
+    })
   }
 }
 
@@ -707,7 +685,6 @@ class Modal {
       }
       case 'error': {
         this.widget.calendar._activeTimeElements();
-        // State.clearState();
         this._changeScreen('inputs');
         break;
       }
@@ -739,9 +716,7 @@ class FieldArea extends ModalScreen {
   fields = [];  
   
   constructor(item, widget) {
-    
 		super(item, widget);
-    
     this._init();
   }
 
@@ -775,7 +750,7 @@ class SuccessScreen extends ModalScreen {
 	}
 
 	setData() {
-		let state = State.getField('dateTime');
+		let state = this.widget.state.getField('dateTime');
 		let date = new Date(state);
 		let dateStr = ("0" + date.getDate()).slice(-2) + '.' + ("0" + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
 		let timeStr = ("0" + date.getHours()).slice(-2) + ':' + ("0" + date.getMinutes()).slice(-2);
@@ -792,7 +767,7 @@ class Input {
     
     this.name = this.input.dataset.name;
 		this.error = false;
-    this.required = State.isRequired(this.name);
+    this.required = this.widget.state.isRequired(this.name);
     this._setValidation();
     this._setText();
     this._init();
@@ -826,10 +801,9 @@ class Input {
 		});
     this.input.addEventListener("input", (e) => {
       if (this.name === "number" && this.mask) {        
-        State.setField(this.name, this.mask.unmaskedValue);
-        // State.setField(this.name, e.target.value.trim());
+        this.widget.state.setField(this.name, this.mask.unmaskedValue);
       } else {
-        State.setField(this.name, e.target.value.trim());
+        this.widget.state.setField(this.name, e.target.value.trim());
       }
     });
   }
@@ -897,12 +871,12 @@ class Input {
 }
 
 const pageInit = async () => {
-  State.setField('site_id', window.location.origin);
   let widgets = document.querySelectorAll('.UMC-widget');
   let reqArray = [];
   if (!window.UMCWidget) {
     window.UMCWidget = {};
   }
+
   widgets.forEach(item => {
     let con = item.querySelector('.UMC-widget__medic-id');
     let id = con.dataset.medic;
@@ -934,13 +908,12 @@ const pageInit = async () => {
       })
       
     } else {
-      throw Error('There are not doctors');
+      throw Error('Не указаны идентификаторы врачей');
     }    
   } catch (e) {
     console.log(e)
     Widget._sendError(widgets);
     window.UMCWidget.dataLoaded = false;
-    
   }
 } 
 

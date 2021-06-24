@@ -10,21 +10,19 @@
 	font-weight: normal;
 }
 
-:root {
-  --main-bg-color: #18538e;
-}
 .UMC-widget {
   box-sizing: border-box;
-  margin: 10px 0;
-  border-radius: 7px;
   width: 1194px;
   margin: 20px auto;
 }
 .UMC-widget__form {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
+  column-gap: 20px;
+}
+
+.UMC-widget__block {
+  width: 100%;
 }
 
 /**/
@@ -114,11 +112,12 @@
   background-color: #B6B6B690;
 }
 .UMC-widget__calendar-item {
-  width: 52px;
+  width: 42px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
+  justify-self: center;
   font-size: 18px;
   background-color: #28BAC0;
   border-radius: 4px;
@@ -132,6 +131,8 @@
 }
 .UMC-widget__calendar-item_red {
   background-color: #DF373D;
+  user-select: none;
+  pointer-events: none;
 }
 .UMC-widget__calendar-item_red:hover {
   background-color: #DF373D;
@@ -142,13 +143,40 @@
 .UMC-widget__calendar-item_dark:hover {
   background-color: #005C65;
 }
+.UMC-widget__calendar-item_empty {
+  background-color: transparent;
+  cursor: auto;
+  user-select: none;
+  pointer-events: none;
+}
+.UMC-widget__calendar-item_empty:hover {
+  background-color: transparent;
+}
+.UMC-widget__calendar-des-item-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #C8C8C8;
+  background-image: url(../images/arrow.png);
+  background-repeat: no-repeat;
+  background-size: 12px 12px;
+  background-position: center;
+  cursor: pointer;
+  transition: all ease 0.1s;
+}
+.UMC-widget__calendar-des-item-icon:hover {
+  background-color: #DEDEDE;
+}
+.UMC-widget__calendar-des-item-icon_back {
+  transform: rotate(180deg);
+}
 
 /*time*/
 
 .UMC-widget__time {
   padding: 20px 16px;
   overflow-y: auto;
-  width: 310px;
+  width: 260px;
 }
 .UMC-widget__time-item {
   margin-bottom: 18px;
@@ -196,11 +224,19 @@
 /*UMC-widget__service*/
 
 .UMC-widget__service {
-  width: 170px;
+  width: 100%;
   padding: 12px;
   overflow: auto;
 }
-.UMC-widget__service__item {
+.UMC-widget__service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.UMC-widget__service-header-price {
+  font-weight: bold;
+}
+.UMC-widget__service-item {
   padding: 5px 8px;
   font-size: 14px;
   background-color: #28BAC0;
@@ -211,13 +247,13 @@
   margin-bottom: 10px;
   user-select: none;
 }
-.UMC-widget__service__item:hover {
+.UMC-widget__service-item:hover {
   background-color: #007E8A;
 }
-.UMC-widget__service__item_selected {
+.UMC-widget__service-item_selected {
   background-color: #005C65;
 }
-.UMC-widget__service__item_selected:hover {
+.UMC-widget__service-item_selected:hover {
   background-color: #005C65;
 }
 
@@ -362,7 +398,10 @@
 .UMC-widget__open-input:hover {
   text-decoration: none;
 }
+
+
 /*success*/
+
 .UMC-widget__success-area {
   display: flex;
   align-items: center;
@@ -397,18 +436,6 @@
   text-decoration: underline;
   cursor: pointer;
   margin-top: 10px;
-}
-.UMC-widget__preloader-wrapper {
-  width: 300px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #F1F3F4;
-  border-radius: 5px;
-}
-.UMC-widget__preloader-wrapper .UMC-widget__preloader {
-  width: 40px;
 }
 
 /*modal*/
@@ -492,7 +519,7 @@
 .UMC-widget_class-hidden {
   display: none;
 }
-.shadow-box_hidden {
+.shadow-box_hidden, .shadow-box_loading {
   overflow: hidden;
 }
 .shadow-box_hidden::after {
@@ -503,4 +530,17 @@
   right: 0;
   bottom: 0;
   left: 0;
+}
+.shadow-box_loading::after {
+  content: '';
+  position: absolute;
+  background-color: #00000030;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-image: url(../images/load.gif);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40px 40px;
 }
