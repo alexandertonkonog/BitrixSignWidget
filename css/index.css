@@ -180,8 +180,13 @@
 }
 .UMC-widget__time-item {
   margin-bottom: 18px;
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr;
   color: black;
-  display: flex;
+  justify-content: center;
+}
+.UMC-widget__time-item > * {
+  justify-self: center;
 }
 .UMC-widget__time-item_free {
   color: black;

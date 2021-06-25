@@ -6,7 +6,7 @@ class Widget {
 
   constructor(item) {
     this.widget = item;
-    this.state = new State();
+    this.state = new WidgetState();
     this.state.setField('site_id', window.location.origin);
     this.idContainer = this.widget.querySelector('.UMC-widget__medic-id');
     this.id = this.idContainer.dataset.medic;
@@ -181,7 +181,7 @@ class Widget {
   }
 }
 
-class State {
+class WidgetState {
   _state = {};
   _code;
   _requiredFields = [
