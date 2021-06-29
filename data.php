@@ -1,4 +1,8 @@
-<?
+<?php
+
+    header('Access-Control-Allow-Origin: *');
+    header('Access-Control-Allow-Methods: GET, POST');
+    header('Access-Control-Allow-Headers: Origin, Content-Type, X-Auth-Token , Authorization');
     error_reporting(E_ERROR);
 
     function sendMessage($data, $url) {
@@ -30,3 +34,10 @@
     } else {
         echo json_encode(array("success" => false));
     }
+
+    
+
+
+    
+    
+    

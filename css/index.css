@@ -1,12 +1,12 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap");
 @font-face {
 	font-family: 'Gotham Pro';
-	src: 	url('./fonts/GothamPro-Bold.woff') format('woff');
+	src: 	url('../fonts/GothamPro-Bold.woff') format('woff');
 	font-weight: bold;
 }
 @font-face {
 	font-family: 'Gotham Pro';
-	src: url('./fonts/GothamPro.woff') format('woff');
+	src: url('../fonts/GothamPro.woff') format('woff');
 	font-weight: normal;
 }
 
@@ -157,7 +157,7 @@
   height: 30px;
   border-radius: 50%;
   background-color: #C8C8C8;
-  background-image: url(./images/arrow.png);
+  background-image: url(../images/arrow.png);
   background-repeat: no-repeat;
   background-size: 12px 12px;
   background-position: center;
@@ -180,9 +180,9 @@
 }
 .UMC-widget__time-item {
   margin-bottom: 18px;
-  color: black;
   display: grid;
   grid-template-columns: 1fr 2fr 1fr 1fr;
+  color: black;
   justify-content: center;
 }
 .UMC-widget__time-item > * {
@@ -544,7 +544,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background-image: url(./images/load.gif);
+  background-image: url(../images/load.gif);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 40px 40px;
