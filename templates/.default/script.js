@@ -1,4 +1,4 @@
-const API_URL = 'https://charite.me/local/firstbit/data.php';
+// window.API_URL = 'https://charite.me/local/firstbit/data.php';
 
 class Widget {
   error = false;
@@ -66,7 +66,7 @@ class Widget {
       method: 'sms',
     }
     try {
-      let data = await fetch(API_URL, {
+      let data = await fetch(window.API_URL, {
         method: 'POST',
         body: JSON.stringify(codeMessage)
       });
@@ -80,7 +80,7 @@ class Widget {
     const state = this.state.getState();	
     const payload = {data: state, method: 'appointment'};
 		try {
-			const data = await fetch(API_URL, {
+			const data = await fetch(window.API_URL, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
@@ -97,7 +97,7 @@ class Widget {
       data: [this.id]
     }
     
-    let data = await fetch(API_URL, {
+    let data = await fetch(window.API_URL, {
       method: 'POST',
       body: JSON.stringify(payload),
     })
@@ -870,7 +870,7 @@ class Input {
 	}
 }
 
-const pageInit = async () => {
+const WidgetsInit = async () => {
   let widgets = document.querySelectorAll('.UMC-widget');
   let reqArray = [];
   if (!window.UMCWidget) {
@@ -895,7 +895,7 @@ const pageInit = async () => {
         data: reqArray
       }
       
-      let data = await fetch(API_URL, {
+      let data = await fetch(window.API_URL, {
         method: 'POST',
         body: JSON.stringify(payload),
       })
@@ -917,7 +917,7 @@ const pageInit = async () => {
   }
 } 
 
-document.addEventListener("DOMContentLoaded", pageInit);
+document.addEventListener("DOMContentLoaded", WidgetsInit);
 
 
 
