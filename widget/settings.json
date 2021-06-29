@@ -1,0 +1,29 @@
+{
+    "settings": {
+        "addresFile": "http://10.5.199.29/send.php",
+        "address": "http://10.5.198.20:8086/UMC_Tonkonog/ru_RU/",
+        "timeReserve": 30
+    },
+    "style": {
+        "containerClass": "",
+        "widgetPositionPlace": "left-bottom",
+        "widgetPosition": "fixed",
+        "backgroundColor": "#18538E",
+        "backgroundWidth": "300px",
+        "backgroundMaxHeight": "calc(100vh - 20px)",
+        "inputColor": "white",
+        "inputBackGround": "#1B3257",
+        "placeholderFontColor": "rgba(172,174,176,0.8)",
+        "placeholderFontSize": "12px",
+        "inputFontColor": "white",
+        "inputFontSize": "14px",
+        "listItemColorHover": "#254579",
+        "listItemFontColorHover": "white",
+        "scrollBarColor": "#3391BF",
+        "scrollBarColorHover": "#3EACD4",
+        "textColor": "rgba(255,255,255,0.6)",
+        "buttonColor": "#3EACD4",
+        "buttonFontColor": "white",
+        "buttonFontSize": "14px"
+    }
+}
