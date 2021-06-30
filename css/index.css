@@ -1,42 +1,43 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap");
-@font-face {
-	font-family: 'Gotham Pro';
-	src: 	url('../fonts/GothamPro-Bold.woff') format('woff');
-	font-weight: bold;
-}
-@font-face {
-	font-family: 'Gotham Pro';
-	src: url('../fonts/GothamPro.woff') format('woff');
-	font-weight: normal;
-}
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
 
+/*main*/
+:root {
+  --main-element-bg: #00A3C8;
+  --main-element-color: #ffffff;
+  --main-element-border: #00A3C8;
+  --main-element-bg_hover: #007995;
+  --main-element-color_hover: #ffffff;
+  --main-element-border_hover: #007995;
+  --main-element-bg_simple: #ffffff;
+  --main-element-color_simple: #555;
+  --main-element-border_simple: #ccc;
+  --main-text: black;
+}
 .UMC-widget {
   box-sizing: border-box;
-  width: 1194px;
+  width: 1400px;
   margin: 20px auto;
 }
+
 .UMC-widget__form {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 2fr 1fr;
   column-gap: 20px;
 }
-
 .UMC-widget__block {
   width: 100%;
 }
 
-/**/
-
-.UMC-widget *,
-.UMC-widget__modal * {
+.UMC-widget * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Gotham Pro';
+  font-family: 'Open Sans';
   font-weight: 400;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 15px;
 }
+
 .UMC-widget__input-wrapper {
   position: relative;
   margin-bottom: 10px;
@@ -45,6 +46,10 @@
 
 .UMC-widget__section-header {
   padding: 15px 12px;
+  color: var(--main-text);
+}
+.UMC-widget__section-header * {
+  color: var(--main-text);
 }
 .UMC-widget__header-item {
   width: 32px;
@@ -80,7 +85,7 @@
   align-items: center;
 }
 .UMC-widget__calendar-des-text {
-  color:#4A4A4A;
+  color:var(--main-text);
   margin-left: 14px;
 }
 .UMC-widget__calendar {
@@ -91,22 +96,18 @@
   row-gap: 10px;
 }
 .shadow-box {
-  border: 1px solid #005C65;
-  box-shadow: 0px 4px 4px #00000025;
-  border-radius: 6px;
-  height: 226px;
+  border: 2px solid #eeeeee;
+  height: 240px;
   position: relative;
 }
 
 .shadow-box::-webkit-scrollbar {
   width: 8px; 
   background-color: white;
-  border-radius: 6px;
 }
 
 .shadow-box::-webkit-scrollbar-thumb {
   background-color: #B6B6B6;
-  border-radius: 6px;
 }
 .shadow-box::-webkit-scrollbar-thumb:hover {
   background-color: #B6B6B690;
@@ -119,7 +120,7 @@
   justify-content: center;
   justify-self: center;
   font-size: 18px;
-  background-color: #28BAC0;
+  background-color: var(--main-element-bg);
   border-radius: 4px;
   color: white;
   cursor: pointer;
@@ -127,30 +128,21 @@
   user-select: none;
 }
 .UMC-widget__calendar-item:hover {
-  background-color: #007E8A;
+  background-color: var(--main-element-bg_hover);
 }
-.UMC-widget__calendar-item_red {
-  background-color: #DF373D;
+.UMC-widget__calendar-item_busy {
+  opacity: 0.5;
   user-select: none;
   pointer-events: none;
 }
-.UMC-widget__calendar-item_red:hover {
-  background-color: #DF373D;
-}
-.UMC-widget__calendar-item_dark {
-  background-color: #005C65;
-}
-.UMC-widget__calendar-item_dark:hover {
-  background-color: #005C65;
+.UMC-widget__calendar-item_selected {
+  background-color: var(--main-element-bg_hover);
 }
 .UMC-widget__calendar-item_empty {
   background-color: transparent;
   cursor: auto;
   user-select: none;
   pointer-events: none;
-}
-.UMC-widget__calendar-item_empty:hover {
-  background-color: transparent;
 }
 .UMC-widget__calendar-des-item-icon {
   width: 30px;
@@ -176,20 +168,17 @@
 .UMC-widget__time {
   padding: 20px 16px;
   overflow-y: auto;
-  width: 260px;
+  /* width: 260px; */
 }
 .UMC-widget__time-item {
   margin-bottom: 18px;
   display: grid;
   grid-template-columns: 1fr 2fr 1fr 1fr;
-  color: black;
+  color: var(--main-text);
   justify-content: center;
 }
 .UMC-widget__time-item > * {
   justify-self: center;
-}
-.UMC-widget__time-item_free {
-  color: black;
 }
 .UMC-widget__time-space {
   border-bottom: 1px solid #D9D9D9;
@@ -211,18 +200,15 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  background: #DF373D;
+  background: var(--main-element-bg);
   border-radius: 50%;
   color: white;
   margin-right: 10px;
 }
-.UMC-widget__time-item_free .UMC-widget__time-sign-icon {
-  background: #28BAC0;
+.UMC-widget__time-sign-icon:hover {
+  background: var(--main-element-bg_hover);
 }
-.UMC-widget__time-item_free .UMC-widget__time-sign-icon:hover {
-  background: #007E8A;
-}
-.UMC-widget__time-item_free .UMC-widget__time-sign {
+.UMC-widget__time-sign {
   cursor: pointer;
 }
 
@@ -244,22 +230,28 @@
 .UMC-widget__service-item {
   padding: 5px 8px;
   font-size: 14px;
-  background-color: #28BAC0;
   border-radius: 4px;
-  color: white;
+  color: var(--main-element-color_simple);
   cursor: pointer;
   transition: all ease 0.1s;
   margin-bottom: 10px;
   user-select: none;
+  border: 1px solid var(--main-element-border_simple);
 }
 .UMC-widget__service-item:hover {
-  background-color: #007E8A;
+  background-color: var(--main-element-bg);
+  border-color: var(--main-element-border);
+  color: var(--main-element-color);
 }
 .UMC-widget__service-item_selected {
-  background-color: #005C65;
+  background-color: var(--main-element-bg);
+  border-color: var(--main-element-bg);
+  color: var(--main-element-color);
 }
 .UMC-widget__service-item_selected:hover {
-  background-color: #005C65;
+  background-color: var(--main-element-bg_hover);
+  border-color: var(--main-element-border_hover);
+  color: var(--main-element-color_hover);
 }
 
 /**/
@@ -280,9 +272,11 @@
   color: black;
   font-weight: 500;
   overflow: hidden;
-  border: 1px solid #28BAC0;
-  border-radius: 6px;
+  border: 1px solid #eeeeee;
   background-color: white;
+}
+.UMC-widget__input:focus {
+  border-color: rgba(0, 0, 0, 0.3);
 }
 @keyframes fadeOut {
   0% {
@@ -302,17 +296,14 @@
   margin-top: 8px;
 }
 .UMC-widget__input::-webkit-input-placeholder {
-  color: black;
   font-size: 14px;
   font-weight: 400;
 }
 .UMC-widget__input::-moz-placeholder {
-  color: black;
   font-size: 14px;
   font-weight: 400;
 }
 .UMC-widget__input:-moz-placeholder {
-  color: black;
   font-size: 14px;
   font-weight: 400;
 }
@@ -331,24 +322,24 @@
   padding: 0;
 }
 .UMC-widget__button {
-  background-color: #28BAC0;
+  background-color: var(--main-element-bg);
   font-weight: 500;
-  font-family: Roboto;
   padding: 13px 16px;
   cursor: pointer;
   width: 100%;
   text-align: center;
-  color: white;
+  color: var(--main-element-color);
   max-height: 42px;
   margin-top: 20px;
   overflow: hidden;
   transition: all ease 0.1s;
+  text-transform: uppercase;
 }
 .UMC-widget__preloader-btn {
   height: 20px;
 }
 .UMC-widget__button:hover {
-  background-color: #007E8A;
+  background-color: var(--main-element-bg_hover);
 }
 .UMC-widget__button:active {
   box-shadow: none;
@@ -397,7 +388,7 @@
   font-size: 14px;
   text-decoration: underline;
   padding: 3px;
-  color: black;
+  color: grey;
   cursor: pointer;
 }
 .UMC-widget__open-input:hover {
@@ -463,7 +454,7 @@
   background-color: #fff;
   width: 500px;
   padding: 30px;
-  max-height: 600px;
+  max-height: 90vh;
   overflow: auto;
   border-radius: 5px;
   transition: all ease 0.3s;
@@ -483,6 +474,7 @@
   font-size: 20px;
   font-weight: 500;
   letter-spacing: 0.15px;
+  color: var(--main-text);
 }
 .UMC-widget__modal-exit {
   font-size: 28px;
@@ -502,25 +494,18 @@
   color: #5b5d63;
 }
 .UMC-widget__private-text {
-  color: black;
+  color: var(--main-text);
   margin-top: 24px;
   text-align: center;
   font-size: 14px;
   line-height: 140%;
 }
 .UMC-widget__private-link {
-  color: #28BAC0;
+  color: var(--main-element-bg);
 }
 .UMC-widget__private-link:hover {
   text-decoration: none;
 }
-
-@media screen and (max-width: 1200px) {
-  
-}
-@media screen and (max-width: 768px) {
-}
-
 .UMC-widget_class-hidden {
   display: none;
 }
@@ -548,4 +533,31 @@
   background-repeat: no-repeat;
   background-position: center;
   background-size: 40px 40px;
+}
+
+@media screen and (max-width: 1400px) {
+  .UMC-widget {
+    width: 1200px;
+  }
+  .UMC-widget__form {
+    grid-template-columns: 1fr 1fr 1fr;
+    row-gap: 40px;
+  }
+}
+@media screen and (max-width: 1280px) {
+  .UMC-widget {
+    width: 700px;
+  }
+  .UMC-widget__form {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 20px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .UMC-widget {
+    width: 280px;
+  }
+  .UMC-widget__form {
+    grid-template-columns: 1fr;
+  }
 }

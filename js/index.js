@@ -444,7 +444,7 @@ class Calendar extends Block {
         if (item.free) {
           day.className = 'UMC-widget__calendar-item';
         } else {
-          day.className = 'UMC-widget__calendar-item UMC-widget__calendar-item_red';
+          day.className = 'UMC-widget__calendar-item UMC-widget__calendar-item_busy';
         }
         day.textContent = item.day;
         day.addEventListener('click', () => this._clickCalendarElement(day, item));
@@ -463,9 +463,9 @@ class Calendar extends Block {
   _clickCalendarElement(elem, data) {
     if (data.free) {
       this.calendar.querySelectorAll('.UMC-widget__calendar-item').forEach(item => {
-        item.classList.remove('UMC-widget__calendar-item_dark');
+        item.classList.remove('UMC-widget__calendar-item_selected');
       })
-      elem.classList.add('UMC-widget__calendar-item_dark');
+      elem.classList.add('UMC-widget__calendar-item_selected');
       this.selectedDay = data;
       this.widget.timeArea.init();
     }

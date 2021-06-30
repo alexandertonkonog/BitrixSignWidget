@@ -3,13 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <!-- <link rel="stylesheet" href="https://charite.me/local/firstbit/index.css" /> -->
     <link rel="stylesheet" href="css/index.css" />
     <title>Document</title>
   </head>
   <body>
+    <a href="">reload</a>
     <section class="UMC-widget">
-      <p class="UMC-widget__date">Сегодня 11 июля</p>
       <div class="UMC-widget__form" id="UMC-widget__form">
         <div class="UMC-widget__service-wrapper UMC-widget__servicegroups-wrapper UMC-widget__block">
           <div class="UMC-widget__service-header UMC-widget__section-header">Группа услуг:</div>
@@ -25,6 +26,20 @@
         <div class="UMC-widget__service-wrapper UMC-widget__services-wrapper UMC-widget__block">
           <div class="UMC-widget__service-header UMC-widget__section-header">
             <p>Услуга:</p>
+            <p class="UMC-widget__service-header-price"></p>
+          </div>
+          <div class="UMC-widget__service shadow-box shadow-box_hidden">
+            <p class="UMC-widget__service-item">Услуга 1</p>
+            <p class="UMC-widget__service-item">Услуга 2</p>
+            <p class="UMC-widget__service-item UMC-widget__service-item_selected">Услуга 3</p>
+            <p class="UMC-widget__service-item">Услуга 4</p>
+            <p class="UMC-widget__service-item">Услуга 5</p>
+            <p class="UMC-widget__service-item">Услуга 6</p>
+          </div>
+        </div>
+        <div class="UMC-widget__service-wrapper UMC-widget__services-wrapper UMC-widget__block">
+          <div class="UMC-widget__service-header UMC-widget__section-header">
+            <p>Врач:</p>
             <p class="UMC-widget__service-header-price"></p>
           </div>
           <div class="UMC-widget__service shadow-box shadow-box_hidden">
@@ -54,7 +69,7 @@
             <p class="UMC-widget__calendar-item">5</p>
             <p class="UMC-widget__calendar-item">6</p>
             <p class="UMC-widget__calendar-item">7</p>
-            <p class="UMC-widget__calendar-item UMC-widget__calendar-item_red">8</p>
+            <p class="UMC-widget__calendar-item UMC-widget__calendar-item_busy">8</p>
             <p class="UMC-widget__calendar-item">9</p>
             <p class="UMC-widget__calendar-item">10</p>
             <p class="UMC-widget__calendar-item">11</p>
@@ -62,13 +77,13 @@
             <p class="UMC-widget__calendar-item">13</p>
             <p class="UMC-widget__calendar-item">14</p>
             <p class="UMC-widget__calendar-item">15</p>
-            <p class="UMC-widget__calendar-item UMC-widget__calendar-item_red">16</p>
+            <p class="UMC-widget__calendar-item UMC-widget__calendar-item_busy">16</p>
             <p class="UMC-widget__calendar-item">17</p>
             <p class="UMC-widget__calendar-item">18</p>
             <p class="UMC-widget__calendar-item">19</p>
             <p class="UMC-widget__calendar-item">20</p>
             <p class="UMC-widget__calendar-item">21</p>
-            <p class="UMC-widget__calendar-item UMC-widget__calendar-item_dark">22</p>
+            <p class="UMC-widget__calendar-item UMC-widget__calendar-item_selected">22</p>
             <p class="UMC-widget__calendar-item">23</p>
             <p class="UMC-widget__calendar-item">24</p>
             <p class="UMC-widget__calendar-item">25</p>
@@ -80,7 +95,7 @@
           </div>
           <div class="UMC-widget__calendar-des">
             <div class="UMC-widget__calendar-des-item">
-              <p class="UMC-widget__calendar-item UMC-widget__calendar-item_red"></p>
+              <p class="UMC-widget__calendar-item UMC-widget__calendar-item_busy"></p>
               <p class="UMC-widget__calendar-des-text">Занято</p>
             </div>
             <div class="UMC-widget__calendar-des-item">
