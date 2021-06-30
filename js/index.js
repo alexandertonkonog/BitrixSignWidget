@@ -1,42 +1,328 @@
-const API_URL = 'https://charite.me/local/firstbit/data.php';
-
-class Widget {
+class UMCWidget {
   error = false;
   errorField = false;
 
-  constructor(item) {
-    this.widget = item;
-    this.state = new WidgetState();
-    this.state.setField('site_id', window.location.origin);
-    this.idContainer = this.widget.querySelector('.UMC-widget__medic-id');
-    this.id = this.idContainer.dataset.medic;
-    if (!this.id) {
-      this.id = this.idContainer.textContent;
-    }
-    this.name = 'UMC-widget' + this.id;
-    this.dotName = '.' + this.name;
-    this.widget.classList.add(this.name);
-    
+  constructor(options) {
+    this.API_URL = 'https://charite.me/local/firstbit/data.php';
+    this.options = options;
+    this.template = `<section class="UMC-widget">
+    <div class="UMC-widget__form" id="UMC-widget__form">
+      <div class=" UMC-widget__servicegroups-wrapper UMC-widget__block">
+        <div class="UMC-widget__service-header UMC-widget__section-header">Группа услуг:</div>
+        <div class="UMC-widget__service shadow-box shadow-box_loading">
+          <p class="UMC-widget__service-item">Группа услуг 1</p>
+          <p class="UMC-widget__service-item UMC-widget__service-item_selected">Группа услуг 2</p>
+          <p class="UMC-widget__service-item">Группа услуг 3</p>
+          <p class="UMC-widget__service-item">Группа услуг 4</p>
+          <p class="UMC-widget__service-item">Группа услуг 5</p>
+          <p class="UMC-widget__service-item">Группа услуг 6</p>
+        </div>
+      </div>
+      <div class="UMC-widget__services-wrapper UMC-widget__block">
+        <div class="UMC-widget__service-header UMC-widget__section-header">
+          <p>Услуга:</p>
+          <p class="UMC-widget__service-header-price"></p>
+        </div>
+        <div class="UMC-widget__service shadow-box shadow-box_hidden">
+          <p class="UMC-widget__service-item">Услуга 1</p>
+          <p class="UMC-widget__service-item">Услуга 2</p>
+          <p class="UMC-widget__service-item UMC-widget__service-item_selected">Услуга 3</p>
+          <p class="UMC-widget__service-item">Услуга 4</p>
+          <p class="UMC-widget__service-item">Услуга 5</p>
+          <p class="UMC-widget__service-item">Услуга 6</p>
+        </div>
+      </div>
+      <div class="UMC-widget__medic-wrapper UMC-widget__block">
+        <div class="UMC-widget__service-header UMC-widget__section-header">
+          Врач:
+        </div>
+        <div class="UMC-widget__service shadow-box shadow-box_hidden">
+          <p class="UMC-widget__service-item">Врач 1</p>
+          <p class="UMC-widget__service-item">Врач 2</p>
+          <p class="UMC-widget__service-item UMC-widget__service-item_selected">Врач 3</p>
+          <p class="UMC-widget__service-item">Врач 4</p>
+          <p class="UMC-widget__service-item">Врач 5</p>
+          <p class="UMC-widget__service-item">Врач 6</p>
+        </div>
+      </div>
+      <div class="UMC-widget__calendar-wrapper UMC-widget__block">
+        <p class="UMC-widget__calendar-header UMC-widget__section-header">
+          <span class="UMC-widget__header-item">Пн</span>
+          <span class="UMC-widget__header-item">Вт</span>
+          <span class="UMC-widget__header-item">Ср</span>
+          <span class="UMC-widget__header-item">Чт</span>
+          <span class="UMC-widget__header-item">Пт</span>
+          <span class="UMC-widget__header-item UMC-widget__header-item_last">Сб</span>
+          <span class="UMC-widget__header-item UMC-widget__header-item_last">Вс</span>
+        </p>
+        <div class="UMC-widget__calendar shadow-box shadow-box_hidden">
+          <p class="UMC-widget__calendar-item">1</p>
+          <p class="UMC-widget__calendar-item">2</p>
+          <p class="UMC-widget__calendar-item">3</p>
+          <p class="UMC-widget__calendar-item">4</p>
+          <p class="UMC-widget__calendar-item">5</p>
+          <p class="UMC-widget__calendar-item">6</p>
+          <p class="UMC-widget__calendar-item">7</p>
+          <p class="UMC-widget__calendar-item UMC-widget__calendar-item_busy">8</p>
+          <p class="UMC-widget__calendar-item">9</p>
+          <p class="UMC-widget__calendar-item">10</p>
+          <p class="UMC-widget__calendar-item">11</p>
+          <p class="UMC-widget__calendar-item">12</p>
+          <p class="UMC-widget__calendar-item">13</p>
+          <p class="UMC-widget__calendar-item">14</p>
+          <p class="UMC-widget__calendar-item">15</p>
+          <p class="UMC-widget__calendar-item UMC-widget__calendar-item_busy">16</p>
+          <p class="UMC-widget__calendar-item">17</p>
+          <p class="UMC-widget__calendar-item">18</p>
+          <p class="UMC-widget__calendar-item">19</p>
+          <p class="UMC-widget__calendar-item">20</p>
+          <p class="UMC-widget__calendar-item">21</p>
+          <p class="UMC-widget__calendar-item UMC-widget__calendar-item_selected">22</p>
+          <p class="UMC-widget__calendar-item">23</p>
+          <p class="UMC-widget__calendar-item">24</p>
+          <p class="UMC-widget__calendar-item">25</p>
+          <p class="UMC-widget__calendar-item">26</p>
+          <p class="UMC-widget__calendar-item">27</p>
+          <p class="UMC-widget__calendar-item">28</p>
+          <p class="UMC-widget__calendar-item">29</p>
+          <p class="UMC-widget__calendar-item">30</p>
+        </div>
+        <div class="UMC-widget__calendar-des">
+          <div class="UMC-widget__calendar-des-item">
+            <p class="UMC-widget__calendar-item UMC-widget__calendar-item_busy"></p>
+            <p class="UMC-widget__calendar-des-text">Занято</p>
+          </div>
+          <div class="UMC-widget__calendar-des-item">
+            <p class="UMC-widget__calendar-item"></p>
+            <p class="UMC-widget__calendar-des-text">Свободно</p>
+          </div>
+          <div class="UMC-widget__calendar-des-item">
+            <div class="UMC-widget__calendar-des-item-icon" title="Следующий месяц"></div>
+          </div>
+        </div>
+      </div>
+      <div class="UMC-widget__time-container UMC-widget__block">
+        <p class="UMC-widget__time-header UMC-widget__section-header">Время записи на: 11 июля</p>
+        <div class="UMC-widget__time-wrapper">
+          <div class="UMC-widget__time shadow-box shadow-box_hidden">
+            <p class="UMC-widget__time-item UMC-widget__time-item_free">
+              09:00-10:00
+            </p>
+            <p class="UMC-widget__time-item UMC-widget__time-item_free">
+              10:00-11:00
+            </p>
+          </div>
+        </div>
+      </div>       
+    </div>
+    <div class="UMC-widget__modal UMC-widget_class-hidden">
+      <div class="UMC-widget__modal-body">
+        <div class="UMC-widget__modal-header">
+          <h3 class="UMC-widget__modal-title">Введите личные данные</h3>
+          <div class="UMC-widget__modal-exit">&times;</div>
+        </div>
+        <div class="UMC-widget__modal-content">
+          <div class="UMC-widget__inputs-wrapper  UMC-widget__modal-screen" data-name="inputs">
+            <div class="UMC-widget__inputs">
+              <div class="UMC-widget__input-wrapper">
+                <input
+                  class="UMC-widget__input UMC-widget__elem"
+                  placeholder="Имя"
+                  data-name="name"
+                />
+              </div>
+              <div class="UMC-widget__input-wrapper">
+                <input
+                  class="UMC-widget__input UMC-widget__elem"
+                  placeholder="Отчество"
+                  data-name="fathername"
+                />
+              </div>
+              <div class="UMC-widget__input-wrapper">
+                <input
+                  class="UMC-widget__input UMC-widget__elem"
+                  placeholder="Фамилия"
+                  data-name="surname"
+                />
+              </div>
+              <div class="UMC-widget__input-wrapper">
+                <input
+                  class="UMC-widget__input UMC-widget__elem"
+                  placeholder="Телефон"
+                  data-name="number"
+                />
+              </div>
+              <div class="UMC-widget__input-wrapper UMC-widget_class-hidden">
+                <input
+                  class="UMC-widget__input UMC-widget__elem"
+                  placeholder="email"
+                  name="email"
+                  data-name="email"
+                />
+              </div>
+              <div class="UMC-widget__input-wrapper UMC-widget_class-hidden">
+                <input
+                  class="UMC-widget__input UMC-widget__elem"
+                  placeholder="Адрес"
+                  data-name="address"
+                />
+              </div>
+              <div class="UMC-widget__input-wrapper UMC-widget_class-hidden">
+                <input
+                  class="UMC-widget__input UMC-widget__elem"
+                  placeholder="Комментарий"
+                  data-name="comment"
+                />
+              </div>
+            </div>
+            <p class="UMC-widget__open-input" data-name="address">Адрес</p>
+            <p class="UMC-widget__open-input" data-name="comment">
+              Комментарий
+            </p>
+            <div class="UMC-widget__button-area">
+              <div class="UMC-widget__button" id="UMC-widget__btn-sign">
+                Записаться
+              </div>
+            </div>
+            <p class="UMC-widget__private-text">
+              Нажимая "Записаться на прием", Вы даете согласие на обработку
+              <a class="UMC-widget__private-link" href="#">
+                персональных данных</a
+              >.
+            </p>
+          </div>
+          <div class="UMC-widget__accept-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="accept">
+            <div class="UMC-widget__input-wrapper">
+              <input
+                class="UMC-widget__input UMC-widget__elem"
+                placeholder="Код из смс"
+                data-name="code"
+              />
+            </div>
+            <p class="UMC-widget__private-text">
+              На Ваш номер в течение нескольких минут придет код подтверждения.
+              Введите его в поле выше.
+            </p>
+            <div class="UMC-widget__button-area">
+              <div class="UMC-widget__button" id="UMC-widget__btn-accept">
+                подтвердить номер
+              </div>
+            </div>
+          </div>
+          <div class="UMC-widget__success-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="success">
+            <div class="UMC-widget__success-area">
+                <img class="UMC-widget__success-icon" src="https://charite.me/local/firstbit/images/success.png" alt="" />
+                <p class="UMC-widget__success-text"></p>
+            </div>
+          </div>
+          <div class="UMC-widget__error-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="error">
+            <div class="UMC-widget__success-area">
+                <img class="UMC-widget__success-icon" src="https://charite.me/local/firstbit/images/error.png" alt="" />
+                <p class="UMC-widget__success-text">Произошла ошибка! Попробуйте записаться еще раз или перезагрузите страницу</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </section>`;
     this._init();
-    if (!window.UMCWidget.list) {
-      window.UMCWidget.list = [];
-    }
-    window.UMCWidget.list.push(this);
-    window.UMCWidget['Widget' + this.id] = this;
   }
 
   async _init() {
     try {
-      this._setUser();
+      await this._getSettings();
+      this._setTemplate();
+      this._setSettings();
+      await this._getData();
+      this._formatData();
       this._widgetInit();
     } catch (e) {
-      console.log(e)
-      Widget._sendError([this.widget]);
+      console.error(e)
+      this._sendError();
     }
+  }
+
+  async _getSettings() {
+    const settingsJson = await fetch('../settings.json');
+    this.settings = await settingsJson.json();
+  }
+
+  async _getData() {
+    const payload = {
+        method: 'schedule',
+        data: this.options.doctors
+    };
+    const data = await fetch(this.API_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    this.medics = await data.json();
+  }
+
+  _setTemplate() {
+    const settings = this.settings.settings;
+    if (this.options.root) {
+      const root = document.querySelector('#' + this.options.root);
+      if (root) {
+        root.innerHTML = this.template;
+        this.widget = document.querySelector('.UMC-widget');
+      }
+    } else {
+      this.modalMode = true;
+      const modalTemplate = `
+        <div class="UMC-widget__modal UMC-widget_class-hidden">
+          <div class="UMC-widget__modal-body UMC-widget__modal-body_global">
+            <div class="UMC-widget__modal-header">
+              <h3 class="UMC-widget__modal-title">Запись на прием</h3>
+              <div class="UMC-widget__modal-exit">&times;</div>
+            </div>
+            <div class="UMC-widget__modal-content"></div>
+          </div>
+        </div>`;
+      this.root = document.createElement('div');
+      this.root.className = 'UMC-widget__container';
+      this.root.innerHTML = modalTemplate;
+      this.globalModal = this.root.querySelector('.UMC-widget__modal');
+      this.globalModalBody = this.root.querySelector('.UMC-widget__modal-body');
+      this.globalModalExit = this.root.querySelector('.UMC-widget__modal-body');
+      const content = this.globalModal.querySelector('.UMC-widget__modal-content');
+      content.innerHTML = this.template;
+      const template = `<img src="/images/pencil.svg" class="UMC-widget__toggler-icon" alt="Запись на прием">`;
+      this.toggler = document.createElement('div');
+      this.toggler.className = 'UMC-widget__toggler';
+      this.toggler.innerHTML = template;
+      this.root.append(this.toggler);
+      this.widget = this.root.querySelector('.UMC-widget');
+      this.toggler.addEventListener('click', () => {
+        this.globalModal.classList.remove('UMC-widget_class-hidden');
+      })
+      this.globalModalExit.addEventListener('click', () => {
+        this.globalModal.classList.add('UMC-widget_class-hidden');
+      })
+      document.body.append(this.root);
+    }
+    
+  }
+
+  _setSettings() {
+    const styles = this.settings.style;
+    for (let key in styles) {
+      document.documentElement.style.setProperty("--" + key, styles[key]);
+    }
+  }
+
+  _formatData() {
+    this.services = [];
+    this.medics.forEach(item => {
+      const arr = item.services.filter(elem => !this.services.some(serv => serv.service_id === elem.service_id));
+      this.services = [...this.services, ...arr];
+    })
   }
 
   _widgetInit() {
     this._initEvents();
+    this.state = new WidgetState();
+    this.state.setField('site_id', window.location.origin);
     this.serviceGroupArea = new ServiceGroupArea(this);
     this.serviceArea = new ServiceArea(this);
     this.medicArea = new MedicArea(this);
@@ -55,16 +341,6 @@ class Widget {
     })
   }
 
-  _setUser() {
-    this.user = window.UMCWidget.data.find((item) => item.doctor_id === this.id);
-    if (!this.user) {
-      throw new Error('error');
-    } else {
-      this.state.setField("doctor_id", this.id);
-    }
-    
-  }
-
   async _sendCode() {
     const codeMessage = {
       data: {
@@ -74,7 +350,7 @@ class Widget {
       method: 'sms',
     }
     try {
-      let data = await fetch(API_URL, {
+      let data = await fetch(this.API_URL, {
         method: 'POST',
         body: JSON.stringify(codeMessage)
       });
@@ -88,7 +364,7 @@ class Widget {
     const state = this.state.getState();	
     const payload = {data: state, method: 'appointment'};
 		try {
-			const data = await fetch(API_URL, {
+			const data = await fetch(this.API_URL, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
@@ -102,10 +378,10 @@ class Widget {
   async refreshInformation() {
     const payload = {
       method: 'schedule',
-      data: [this.id]
+      data: this.options.doctors
     }
     
-    let data = await fetch(API_URL, {
+    let data = await fetch(this.API_URL, {
       method: 'POST',
       body: JSON.stringify(payload),
     })
@@ -166,9 +442,7 @@ class Widget {
 	}
 
   static _sendError(widgets) {
-    widgets.forEach(item => {
-      
-    })
+    
   }
 
   _sendModalError() {
@@ -213,8 +487,8 @@ class WidgetState {
   }
 
   clearState() {
-		this._state = {};
-		this._code = null;
+    this._state = {};
+    this._code = null;
   }
 
   getRequiredFields() {
@@ -278,10 +552,9 @@ class ServiceGroupArea extends Block {
     const area = data.widget.querySelector('.UMC-widget__servicegroups-wrapper');
     super(area, data);
     this.widget = data;
-    this.id = data.id;
-    this.user = data.user;
     this.box = area.querySelector('.UMC-widget__service');
     this.deps = ['serviceArea', 'medicArea', 'calendar', 'timeArea'];
+    this.services = data.services;
     this._init();
   }
   
@@ -292,7 +565,7 @@ class ServiceGroupArea extends Block {
 
   _renderServiceItems() {
     this.box.innerHTML = '';
-    this.user.services.forEach(item => {
+    this.services.forEach(item => {
       const serviceItem = document.createElement('p');
       serviceItem.className = ('UMC-widget__service-item');
       serviceItem.textContent = item.service_name;
@@ -322,9 +595,8 @@ class ServiceArea extends Block {
     const area = data.widget.querySelector('.UMC-widget__services-wrapper');
     super(area, data);
     this.widget = data;
-    this.id = data.id;
     this.deps = ['medicArea', 'calendar', 'timeArea'];
-    this.user = data.user;
+    this.services = data.services;
     this.box = area.querySelector('.UMC-widget__service');
     this._price = area.querySelector('.UMC-widget__service-header-price');
   }
@@ -344,7 +616,7 @@ class ServiceArea extends Block {
 
   _renderServiceItems() {
     this.box.innerHTML = '';
-    this.user.services.forEach(item => {
+    this.services.forEach(item => {
       const serviceItem = document.createElement('p');
       serviceItem.className = ('UMC-widget__service-item');
       serviceItem.textContent = item.service_name;
@@ -374,18 +646,9 @@ class MedicArea extends Block {
     const area = data.widget.querySelector('.UMC-widget__medic-wrapper');
     super(area, data);
     this.widget = data;
-    this.id = data.id;
-    this.user = data.user;
     this.box = area.querySelector('.UMC-widget__service');
     this.deps = ['calendar', 'timeArea'];
-    this.medics = [
-      {id: 1, name: 'Врач 1'},
-      {id: 2, name: 'Врач 2'},
-      {id: 3, name: 'Врач 3'},
-      {id: 4, name: 'Врач 4'},
-      {id: 5, name: 'Врач 5'},
-      {id: 6, name: 'Врач 6'},
-    ]
+    this.medics = data.medics;
   }
 
   init() {
@@ -398,19 +661,19 @@ class MedicArea extends Block {
     this.medics.forEach(item => {
       const serviceItem = document.createElement('p');
       serviceItem.className = ('UMC-widget__service-item');
-      serviceItem.textContent = item.name;
+      serviceItem.textContent = item.doctor_name;
       serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
       this.serviceList.push(serviceItem);
       this.box.append(serviceItem);
     })
   }
 
-  _clickServiceItem(node, service) {
+  _clickServiceItem(node, doctor) {
     this.serviceList.forEach(item => {
       item.classList.remove('UMC-widget__service-item_selected');
     });
     node.classList.add('UMC-widget__service-item_selected');
-    this.widget.state.setField('doctor_id', service.id);
+    this.widget.state.setField('doctor_id', doctor.doctor_id);
     this.widget.calendar.init();
     this.widget.calendar.show();
   }
@@ -429,9 +692,8 @@ class Calendar extends Block {
     super(area, data);
     this.date = new Date();
     this.widget = data;
-    this.id = data.id;
-    this.user = data.user;
     this.deps = ['timeArea'];
+    this.medics = data.medics;
     this.calendar = data.widget.querySelector(".UMC-widget__calendar");
     this.arrow = area.querySelector('.UMC-widget__calendar-des-item-icon');
     this._initEvents();
@@ -452,6 +714,8 @@ class Calendar extends Block {
     } else {
       this.duration = 30;
     }
+    const userId = this.widget.state.getField('doctor_id');
+    this.user = this.medics.find(item => item.doctor_id === userId);
     this.user.time.forEach((item) => {
       const start = new Date(item.time_start);
       const end = new Date(item.time_end);      
@@ -619,8 +883,8 @@ class TimeArea extends Block {
 class BtnArea {
   constructor(widget) {
     this.widget = widget;
-    this.btn = document.querySelector(this.widget.dotName + " #UMC-widget__btn-sign");
-    this.access = document.querySelector(this.widget.dotName + " #UMC-widget__btn-accept");
+    this.btn = this.widget.widget.querySelector(" #UMC-widget__btn-sign");
+    this.access = this.widget.widget.querySelector(" #UMC-widget__btn-accept");
     this._init();
   }
 
@@ -664,15 +928,15 @@ class Modal {
 
 	constructor(widget) {
     this.widget = widget;
-    this.title = document.querySelector(this.widget.dotName + " .UMC-widget__modal-title");
-    this.modal = document.querySelector(this.widget.dotName + " .UMC-widget__modal");
-    this.content = document.querySelector(this.widget.dotName + " .UMC-widget__modal-body");
-    this.exit = document.querySelector(this.widget.dotName + " .UMC-widget__modal-exit");
+    this.title = this.widget.widget.querySelector(" .UMC-widget__modal-title");
+    this.modal = this.widget.widget.querySelector(" .UMC-widget__modal");
+    this.content = this.widget.widget.querySelector(" .UMC-widget__modal-body");
+    this.exit = this.widget.widget.querySelector(" .UMC-widget__modal-exit");
 		this._init()
 	}
 
 	_init() {
-		let screens = document.querySelectorAll(this.widget.dotName + ' .UMC-widget__modal-screen');
+		let screens = this.widget.widget.querySelectorAll(' .UMC-widget__modal-screen');
     
 		screens.forEach(item => {
 			if (item.dataset.name === 'inputs') {
@@ -779,16 +1043,16 @@ class FieldArea extends ModalScreen {
   }
 
   _init() {
-    let inputs = document.querySelectorAll(this.widget.dotName + " .UMC-widget__input-wrapper");
-    let openInputBtns = document.querySelectorAll(this.widget.dotName + " .UMC-widget__open-input");
+    let inputs = this.widget.widget.querySelectorAll(" .UMC-widget__input-wrapper");
+    let openInputBtns = this.widget.widget.querySelectorAll(+ " .UMC-widget__open-input");
     inputs.forEach((item) => {
       this.fields.push(new Input(item, this.widget));
     });
     
     openInputBtns.forEach((item) => {
       item.addEventListener("click", () => {
-        let input = document.querySelector(
-          this.widget.dotName + ` .UMC-widget__input[data-name="${item.dataset.name}"]`
+        let input = this.widget.widget.querySelector(
+          ` .UMC-widget__input[data-name="${item.dataset.name}"]`
         );
         input.parentNode.classList.remove("UMC-widget_class-hidden");
         item.remove();
@@ -804,7 +1068,7 @@ class FieldArea extends ModalScreen {
 class SuccessScreen extends ModalScreen {
 	constructor(item, widget) {
 		super(item, widget);
-		this.node = item.querySelector(this.widget.dotName + ' .UMC-widget__success-text');
+		this.node = item.querySelector(' .UMC-widget__success-text');
 	}
 
 	setData() {
@@ -821,7 +1085,7 @@ class Input {
   constructor(wrapper, widget) {
     this.wrapper = wrapper;
     this.widget = widget;
-    this.input = wrapper.querySelector(this.widget.dotName + " .UMC-widget__input");
+    this.input = wrapper.querySelector(" .UMC-widget__input");
     
     this.name = this.input.dataset.name;
 		this.error = false;
@@ -928,54 +1192,6 @@ class Input {
 	}
 }
 
-const pageInit = async () => {
-  let widgets = document.querySelectorAll('.UMC-widget');
-  let reqArray = [];
-  if (!window.UMCWidget) {
-    window.UMCWidget = {};
-  }
-
-  widgets.forEach(item => {
-    let con = item.querySelector('.UMC-widget__medic-id');
-    let id = con.dataset.medic;
-    if (!id) {
-      id = con.textContent;
-    } 
-    if (!reqArray.includes(id)) {
-      reqArray.push(id);
-    }
-  })
-  
-  try {
-    if (reqArray.length) {
-      let payload = {
-        method: 'schedule',
-        data: reqArray
-      }
-      
-      let data = await fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
- 
-      window.UMCWidget.data = await data.json();
-
-      window.UMCWidget.dataLoaded = true;
-      widgets.forEach(item => {
-        new Widget(item);
-      })
-      
-    } else {
-      throw Error('Не указаны идентификаторы врачей');
-    }    
-  } catch (e) {
-    console.log(e)
-    Widget._sendError(widgets);
-    window.UMCWidget.dataLoaded = false;
-  }
-} 
-
-document.addEventListener("DOMContentLoaded", pageInit);
 
 
 

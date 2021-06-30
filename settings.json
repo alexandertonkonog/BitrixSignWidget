@@ -1,0 +1,17 @@
+{
+    "settings": {
+        
+    },
+    "style": {
+        "main-element-bg": "#00A3C8",
+        "main-element-color":"#ffffff",
+        "main-element-border":"#00A3C8",
+        "main-element-bg_hover":"#007995",
+        "main-element-color_hover":"#ffffff",
+        "main-element-border_hover":"#007995",
+        "main-element-bg_simple":"#ffffff",
+        "main-element-color_simple":"#555",
+        "main-element-border_simple":"#ccc",
+        "main-text": "black"
+    }
+}

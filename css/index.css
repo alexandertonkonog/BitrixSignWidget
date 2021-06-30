@@ -453,6 +453,10 @@ html, body {
   transition: all ease 0.3s;
   transform: translateY(0);
 }
+.UMC-widget__modal-body_global {
+  width: auto;
+  padding: 20px;
+}
 .UMC-widget__modal-body_hidden {
   visibility: hidden;
   transform: translateY(-100px);
@@ -478,6 +482,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
+  vertical-align: middle;
   border-radius: 50%;
   color: #adb0b8;
   cursor: pointer;
@@ -531,6 +536,48 @@ html, body {
   background-size: 40px 40px;
 }
 
+/* modal vision */
+
+.UMC-widget__toggler {
+  position: fixed;
+  right: 30px;
+  bottom: 30px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--main-element-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform-origin: center;
+  animation: 5s ease infinite pulse;
+  cursor: pointer;
+}
+.UMC-widget__toggler:hover {
+  background-color: var(--main-element-bg_hover);
+}
+.UMC-widget__toggler-icon {
+  width: 20px;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  } 
+  5% {
+    transform: scale(1.5);
+  }
+  10% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.5);
+  }
+  20% {
+    transform: scale(1);
+  }
+}
+
 @media screen and (max-width: 1400px) {
   .UMC-widget {
     width: 1200px;
@@ -562,6 +609,13 @@ html, body {
 @media screen and (max-width: 768px) {
   .UMC-widget {
     width: 90%;
+  }
+  .UMC-widget__modal-body_global {
+    width: 100%;
+    padding: 30px 0;
+  }
+  .UMC-widget__modal-body_global .UMC-widget__modal-header {
+    padding: 0 20px;
   }
   .UMC-widget__form {
     grid-template-columns: 1fr;
