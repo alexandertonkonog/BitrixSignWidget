@@ -36,15 +36,23 @@ class Widget {
   }
 
   _widgetInit() {
-    
+    this._initEvents();
     this.serviceGroupArea = new ServiceGroupArea(this);
     this.serviceArea = new ServiceArea(this);
+    this.medicArea = new MedicArea(this);
     this.calendar = new Calendar(this);
     this.timeArea = new TimeArea(this);
 		this.modal = new Modal(this);
 		this.btnArea = new BtnArea(this);
 		this.fieldArea = this.modal.screens.find(item => item.name === 'inputs');
 		this.successScreen = this.modal.screens.find(item => item.name === 'success');
+  }
+
+  _initEvents() {
+    this.width = document.documentElement.clientWidth;
+    window.addEventListener('resize', () => {
+      this.width = document.documentElement.clientWidth;
+    })
   }
 
   _setUser() {
@@ -227,18 +235,33 @@ class WidgetState {
 }
 
 class Block {
-  constructor(item) {
+  constructor(item, data) {
     this.wrapper = item;
+    this.widget = data;
+    this.count = 0;
     this.block = item.querySelector('.shadow-box');
   }
 
   show() {
     this.block.classList.remove('shadow-box_hidden');
     this.block.classList.remove('shadow-box_loading');
+    if (this.widget.width <= 768) {
+      this.scroll();
+    }
+    if (this.count > 0 && this.deps) {
+      this.deps.forEach(item => {
+        this.widget[item].hide();
+      })
+    }
+    this.count++;
   }
 
   hide() {
     this.block.classList.add('shadow-box_hidden');
+  }
+
+  scroll() {
+    window.scrollTo(0, this.wrapper.offsetTop);
   }
 
   loading() {
@@ -253,11 +276,12 @@ class ServiceGroupArea extends Block {
   
   constructor (data) {
     const area = data.widget.querySelector('.UMC-widget__servicegroups-wrapper');
-    super(area);
+    super(area, data);
     this.widget = data;
     this.id = data.id;
     this.user = data.user;
-    this.wrapper = area.querySelector('.UMC-widget__service');
+    this.box = area.querySelector('.UMC-widget__service');
+    this.deps = ['serviceArea', 'medicArea', 'calendar', 'timeArea'];
     this._init();
   }
   
@@ -267,14 +291,14 @@ class ServiceGroupArea extends Block {
   }
 
   _renderServiceItems() {
-    this.wrapper.innerHTML = '';
+    this.box.innerHTML = '';
     this.user.services.forEach(item => {
       const serviceItem = document.createElement('p');
       serviceItem.className = ('UMC-widget__service-item');
       serviceItem.textContent = item.service_name;
       serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
       this.serviceList.push(serviceItem);
-      this.wrapper.append(serviceItem);
+      this.box.append(serviceItem);
     })
   }
 
@@ -296,11 +320,12 @@ class ServiceArea extends Block {
   
   constructor (data) {
     const area = data.widget.querySelector('.UMC-widget__services-wrapper');
-    super(area);
+    super(area, data);
     this.widget = data;
     this.id = data.id;
+    this.deps = ['medicArea', 'calendar', 'timeArea'];
     this.user = data.user;
-    this.wrapper = area.querySelector('.UMC-widget__service');
+    this.box = area.querySelector('.UMC-widget__service');
     this._price = area.querySelector('.UMC-widget__service-header-price');
   }
 
@@ -318,14 +343,14 @@ class ServiceArea extends Block {
   }
 
   _renderServiceItems() {
-    this.wrapper.innerHTML = '';
+    this.box.innerHTML = '';
     this.user.services.forEach(item => {
       const serviceItem = document.createElement('p');
       serviceItem.className = ('UMC-widget__service-item');
       serviceItem.textContent = item.service_name;
       serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
       this.serviceList.push(serviceItem);
-      this.wrapper.append(serviceItem);
+      this.box.append(serviceItem);
     })
   }
 
@@ -336,10 +361,58 @@ class ServiceArea extends Block {
     node.classList.add('UMC-widget__service-item_selected');
     this.activeService = service;
     this.widget.state.setField('service_id', service.service_id);
+    this.widget.medicArea.init();
+    this.price = service.service_cost;
+  }
+}
+
+class MedicArea extends Block {
+  serviceList = [];
+  activeService = null;
+  
+  constructor(data) {
+    const area = data.widget.querySelector('.UMC-widget__medic-wrapper');
+    super(area, data);
+    this.widget = data;
+    this.id = data.id;
+    this.user = data.user;
+    this.box = area.querySelector('.UMC-widget__service');
+    this.deps = ['calendar', 'timeArea'];
+    this.medics = [
+      {id: 1, name: 'Врач 1'},
+      {id: 2, name: 'Врач 2'},
+      {id: 3, name: 'Врач 3'},
+      {id: 4, name: 'Врач 4'},
+      {id: 5, name: 'Врач 5'},
+      {id: 6, name: 'Врач 6'},
+    ]
+  }
+
+  init() {
+    this._renderServiceItems();
+    this.show();
+  }
+
+  _renderServiceItems() {
+    this.box.innerHTML = '';
+    this.medics.forEach(item => {
+      const serviceItem = document.createElement('p');
+      serviceItem.className = ('UMC-widget__service-item');
+      serviceItem.textContent = item.name;
+      serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
+      this.serviceList.push(serviceItem);
+      this.box.append(serviceItem);
+    })
+  }
+
+  _clickServiceItem(node, service) {
+    this.serviceList.forEach(item => {
+      item.classList.remove('UMC-widget__service-item_selected');
+    });
+    node.classList.add('UMC-widget__service-item_selected');
+    this.widget.state.setField('doctor_id', service.id);
     this.widget.calendar.init();
     this.widget.calendar.show();
-    this.price = service.service_cost;
-    console.log(service);
   }
 }
 
@@ -353,12 +426,12 @@ class Calendar extends Block {
 
   constructor(data) {
     const area = data.widget.querySelector('.UMC-widget__calendar-wrapper');
-    super(area);
-    
+    super(area, data);
     this.date = new Date();
     this.widget = data;
     this.id = data.id;
     this.user = data.user;
+    this.deps = ['timeArea'];
     this.calendar = data.widget.querySelector(".UMC-widget__calendar");
     this.arrow = area.querySelector('.UMC-widget__calendar-des-item-icon');
     this._initEvents();
@@ -491,17 +564,17 @@ class Calendar extends Block {
 class TimeArea extends Block {
   constructor(data) {
     const area = data.widget.querySelector('.UMC-widget__time-container');
-    super(area);
+    super(area, data);
     this.months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
     this.widget = data;
-    this.wrapper = area.querySelector('.shadow-box');
+    this.box = area.querySelector('.shadow-box');
     this.textItem = area.querySelector('.UMC-widget__time-header');
     const date = new Date();
     this.setText({day: date.getDate(), month: date.getMonth()});
   }
 
   init() {
-    this.wrapper.innerHTML = '';
+    this.box.innerHTML = '';
     this.day = this.widget.calendar.selectedDay;
     this.duration = this.widget.calendar.duration;
     this.timeArray = this.widget.calendar.timeArray.filter(item => {
@@ -530,30 +603,15 @@ class TimeArea extends Block {
       dateTime.setMinutes(dateTime.getMinutes() + this.duration);
       const end = ("0" + dateTime.getHours()).slice(-2) + ":" + ("0" + dateTime.getMinutes()).slice(-2);
       const timeElement = document.createElement('p');
-      timeElement.className = 'UMC-widget__time-item';
-      
-      let template = `
-        <span class="UMC-widget__time-time">${start}</span>
-        <span class="UMC-widget__time-space"></span>
-        <span class="UMC-widget__time-time">${end}</span>`;
+      timeElement.textContent = `${start}-${end}`;
 
       if (this.day.free) {
-        timeElement.classList.add('UMC-widget__time-item_free');
-        template += `
-          <span class="UMC-widget__time-sign">
-            <span class="UMC-widget__time-sign-icon">+</span>
-          </span>`;
+        timeElement.className = 'UMC-widget__time-item UMC-widget__time-item_free';
       } else {
-        template += `
-          <span class="UMC-widget__time-sign">
-            <span class="UMC-widget__time-sign-icon">+</span>
-            Занято
-          </span>`
+        timeElement.className = 'UMC-widget__time-item';
       }
-      timeElement.innerHTML = template;
-      const icon = timeElement.querySelector('.UMC-widget__time-sign-icon');
-      icon.addEventListener('click', () => this.clickTimeElement(item));
-      this.wrapper.append(timeElement);
+      timeElement.addEventListener('click', () => this.clickTimeElement(item));
+      this.box.append(timeElement);
     })
   }
 }
