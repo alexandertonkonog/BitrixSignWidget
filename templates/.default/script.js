@@ -27,6 +27,7 @@ class Widget {
 
   async _init() {
     try {
+      this._initEvents();
       this._setUser();
       this._widgetInit();
     } catch (e) {
@@ -55,6 +56,13 @@ class Widget {
       this.state.setField("doctor_id", this.id);
     }
     
+  }
+
+  _initEvents() {
+    this.width = document.documentElement.clientWidth;
+    window.addEventListener('resize', () => {
+      this.width = document.documentElement.clientWidth;
+    })
   }
 
   async _sendCode() {
@@ -230,15 +238,29 @@ class Block {
   constructor(item) {
     this.wrapper = item;
     this.block = item.querySelector('.shadow-box');
+    this.count = 0;
   }
 
   show() {
     this.block.classList.remove('shadow-box_hidden');
     this.block.classList.remove('shadow-box_loading');
+    if (this.widget.width <= 768) {
+      this.scroll();
+    }
+    if (this.count > 0 && this.deps) {
+      this.deps.forEach(item => {
+        this.widget[item].hide();
+      })
+    }
+    this.count++;
   }
 
   hide() {
     this.block.classList.add('shadow-box_hidden');
+  }
+
+  scroll() {
+    window.scrollTo(0, this.wrapper.offsetTop - 100);
   }
 
   loading() {
@@ -300,6 +322,7 @@ class ServiceArea extends Block {
     this.widget = data;
     this.id = data.id;
     this.user = data.user;
+    this.deps = ['calendar', 'timeArea'];
     this.wrapper = area.querySelector('.UMC-widget__service');
     this._price = area.querySelector('.UMC-widget__service-header-price');
   }
@@ -347,6 +370,7 @@ class Calendar extends Block {
   daysOfWeek = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
   calendarElements = [];
   timeArray = [];
+  
   selectedDay = null;
   days = [];
   current = true;
@@ -354,8 +378,8 @@ class Calendar extends Block {
   constructor(data) {
     const area = data.widget.querySelector('.UMC-widget__calendar-wrapper');
     super(area);
-    
     this.date = new Date();
+    this.deps = ['timeArea']
     this.widget = data;
     this.id = data.id;
     this.user = data.user;
@@ -463,9 +487,9 @@ class Calendar extends Block {
   _clickCalendarElement(elem, data) {
     if (data.free) {
       this.calendar.querySelectorAll('.UMC-widget__calendar-item').forEach(item => {
-        item.classList.remove('UMC-widget__calendar-item_dark');
+        item.classList.remove('UMC-widget__calendar-item_selected');
       })
-      elem.classList.add('UMC-widget__calendar-item_dark');
+      elem.classList.add('UMC-widget__calendar-item_selected');
       this.selectedDay = data;
       this.widget.timeArea.init();
     }

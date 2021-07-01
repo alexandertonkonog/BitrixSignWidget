@@ -137,7 +137,7 @@
 .UMC-widget__calendar-item_red:hover {
   background-color: #DF373D;
 }
-.UMC-widget__calendar-item_dark {
+.UMC-widget__calendar-item_selected {
   background-color: #005C65;
 }
 .UMC-widget__calendar-item_dark:hover {
@@ -170,13 +170,16 @@
 .UMC-widget__calendar-des-item-icon_back {
   transform: rotate(180deg);
 }
+.UMC-widget__calendar-des .UMC-widget__calendar-item {
+  flex-shrink: 0;
+  width: 30px;
+}
 
 /*time*/
 
 .UMC-widget__time {
   padding: 20px 16px;
   overflow-y: auto;
-  width: 260px;
 }
 .UMC-widget__time-item {
   margin-bottom: 18px;
@@ -514,13 +517,6 @@
 .UMC-widget__private-link:hover {
   text-decoration: none;
 }
-
-@media screen and (max-width: 1200px) {
-  
-}
-@media screen and (max-width: 768px) {
-}
-
 .UMC-widget_class-hidden {
   display: none;
 }
@@ -548,4 +544,87 @@
   background-repeat: no-repeat;
   background-position: center;
   background-size: 40px 40px;
+}
+
+@media screen and (max-width: 1400px) {
+  .UMC-widget {
+    width: 1200px;
+  }
+  .UMC-widget__form {
+    grid-template-columns: 1fr 1fr 1fr;
+    row-gap: 40px;
+  }
+
+  /* shadow-box */
+  .shadow-box {
+    height: 300px;
+  }
+
+  /* time */
+  .UMC-widget__time {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media screen and (max-width: 1280px) {
+  .UMC-widget {
+    width: 700px;
+  }
+  .UMC-widget__form {
+    grid-template-columns: 1fr 1fr;
+    row-gap: 20px;
+  }
+}
+@media screen and (max-width: 768px) {
+  .UMC-widget {
+    width: 100%;
+  }
+  .UMC-widget__form {
+    grid-template-columns: 1fr;
+  }
+
+  /* shadow-box */
+  .shadow-box {
+    max-height: 90vh;
+    height: auto;
+  }
+  .shadow-box::-webkit-scrollbar {
+    width: 8px; 
+    background-color: white;
+  }
+  
+  .shadow-box::-webkit-scrollbar-thumb {
+    background-color: #B6B6B6;
+  }
+  .shadow-box::-webkit-scrollbar-thumb:hover {
+    background-color: #B6B6B690;
+  }
+
+  /* calendar */
+  .UMC-widget__calendar-item {
+    width: 100%;
+    height: 30px;
+    font-size: 16px;
+  }
+
+  /* time */
+  .UMC-widget__time {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .UMC-widget__time-space {
+    width: 100%;
+  }
+}
+@media screen and (max-width: 450px) {
+
+  /* time */
+  .UMC-widget__time {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+@media screen and (max-width: 400px) {
+
+  /* time */
+  .UMC-widget__time {
+    grid-template-columns: 1fr 1fr;
+  }
 }

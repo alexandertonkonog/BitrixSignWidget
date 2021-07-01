@@ -69,7 +69,7 @@ use Bitrix\Main\Page\Asset;
 		</div>
 		<div class="UMC-widget__calendar-des-item">
 			<p class="UMC-widget__calendar-item"></p>
-			<p class="UMC-widget__calendar-des-text">Свободные дни</p>
+			<p class="UMC-widget__calendar-des-text">Свободно</p>
 		</div>
 		<div class="UMC-widget__calendar-des-item">
 			<div class="UMC-widget__calendar-des-item-icon" title="Следующий месяц"></div>
