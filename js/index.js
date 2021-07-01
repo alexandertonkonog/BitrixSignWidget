@@ -8,41 +8,41 @@ class UMCWidget {
     this.template = `<section class="UMC-widget">
     <div class="UMC-widget__form" id="UMC-widget__form">
       <div class=" UMC-widget__servicegroups-wrapper UMC-widget__block">
-        <div class="UMC-widget__service-header UMC-widget__section-header">Группа услуг:</div>
-        <div class="UMC-widget__service shadow-box shadow-box_loading">
-          <p class="UMC-widget__service-item">Группа услуг 1</p>
-          <p class="UMC-widget__service-item UMC-widget__service-item_selected">Группа услуг 2</p>
-          <p class="UMC-widget__service-item">Группа услуг 3</p>
-          <p class="UMC-widget__service-item">Группа услуг 4</p>
-          <p class="UMC-widget__service-item">Группа услуг 5</p>
-          <p class="UMC-widget__service-item">Группа услуг 6</p>
+        <div class="UMC-widget__list-header UMC-widget__section-header">Группа услуг:</div>
+        <div class="UMC-widget__list shadow-box shadow-box_loading">
+          <p class="UMC-widget__list-item">Группа услуг 1</p>
+          <p class="UMC-widget__list-item UMC-widget__list-item_selected">Группа услуг 2</p>
+          <p class="UMC-widget__list-item">Группа услуг 3</p>
+          <p class="UMC-widget__list-item">Группа услуг 4</p>
+          <p class="UMC-widget__list-item">Группа услуг 5</p>
+          <p class="UMC-widget__list-item">Группа услуг 6</p>
         </div>
       </div>
       <div class="UMC-widget__services-wrapper UMC-widget__block">
-        <div class="UMC-widget__service-header UMC-widget__section-header">
+        <div class="UMC-widget__list-header UMC-widget__section-header">
           <p>Услуга:</p>
-          <p class="UMC-widget__service-header-price"></p>
+          <p class="UMC-widget__list-header-price"></p>
         </div>
-        <div class="UMC-widget__service shadow-box shadow-box_hidden">
-          <p class="UMC-widget__service-item">Услуга 1</p>
-          <p class="UMC-widget__service-item">Услуга 2</p>
-          <p class="UMC-widget__service-item UMC-widget__service-item_selected">Услуга 3</p>
-          <p class="UMC-widget__service-item">Услуга 4</p>
-          <p class="UMC-widget__service-item">Услуга 5</p>
-          <p class="UMC-widget__service-item">Услуга 6</p>
+        <div class="UMC-widget__list shadow-box shadow-box_hidden">
+          <p class="UMC-widget__list-item">Услуга 1</p>
+          <p class="UMC-widget__list-item">Услуга 2</p>
+          <p class="UMC-widget__list-item UMC-widget__list-item_selected">Услуга 3</p>
+          <p class="UMC-widget__list-item">Услуга 4</p>
+          <p class="UMC-widget__list-item">Услуга 5</p>
+          <p class="UMC-widget__list-item">Услуга 6</p>
         </div>
       </div>
       <div class="UMC-widget__medic-wrapper UMC-widget__block">
-        <div class="UMC-widget__service-header UMC-widget__section-header">
+        <div class="UMC-widget__list-header UMC-widget__section-header">
           Врач:
         </div>
-        <div class="UMC-widget__service shadow-box shadow-box_hidden">
-          <p class="UMC-widget__service-item">Врач 1</p>
-          <p class="UMC-widget__service-item">Врач 2</p>
-          <p class="UMC-widget__service-item UMC-widget__service-item_selected">Врач 3</p>
-          <p class="UMC-widget__service-item">Врач 4</p>
-          <p class="UMC-widget__service-item">Врач 5</p>
-          <p class="UMC-widget__service-item">Врач 6</p>
+        <div class="UMC-widget__list shadow-box shadow-box_hidden">
+          <p class="UMC-widget__list-item">Врач 1</p>
+          <p class="UMC-widget__list-item">Врач 2</p>
+          <p class="UMC-widget__list-item UMC-widget__list-item_selected">Врач 3</p>
+          <p class="UMC-widget__list-item">Врач 4</p>
+          <p class="UMC-widget__list-item">Врач 5</p>
+          <p class="UMC-widget__list-item">Врач 6</p>
         </div>
       </div>
       <div class="UMC-widget__calendar-wrapper UMC-widget__block">
@@ -238,7 +238,6 @@ class UMCWidget {
       this._widgetInit();
     } catch (e) {
       console.error(e)
-      this._sendError();
     }
   }
 
@@ -252,11 +251,12 @@ class UMCWidget {
         method: 'schedule',
         data: this.options.doctors
     };
-    const data = await fetch(this.API_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-    this.medics = await data.json();
+    // const data = await fetch(this.API_URL, {
+    //   method: 'POST',
+    //   body: JSON.stringify(payload),
+    // });
+    const data = await fetch('../data.json');
+    this.data = await data.json();
   }
 
   _setTemplate() {
@@ -312,11 +312,9 @@ class UMCWidget {
   }
 
   _formatData() {
-    this.services = [];
-    this.medics.forEach(item => {
-      const arr = item.services.filter(elem => !this.services.some(serv => serv.service_id === elem.service_id));
-      this.services = [...this.services, ...arr];
-    })
+    this.groups = this.data.service_groups.map(item => ({id: item.group_id, name: item.group_name, services: item.services}));
+    this.doctors = this.data.doctors.map(item => ({id: item.doctor_id, name: item.doctor_name, groups: item.groups, time: item.time, services: item.services}));
+    this.services = this.data.services.map(item => ({id: item.service_id, name: item.service_name, cost: item.service_cost, time: item.service_time, service_groups: item.service_groups}));
   }
 
   _widgetInit() {
@@ -328,6 +326,9 @@ class UMCWidget {
     this.medicArea = new MedicArea(this);
     this.calendar = new Calendar(this);
     this.timeArea = new TimeArea(this);
+    //
+    this.serviceGroupArea.init();
+    //
 		this.modal = new Modal(this);
 		this.btnArea = new BtnArea(this);
 		this.fieldArea = this.modal.screens.find(item => item.name === 'inputs');
@@ -441,7 +442,7 @@ class UMCWidget {
 		}
 	}
 
-  static _sendError(widgets) {
+  static _sendError() {
     
   }
 
@@ -509,11 +510,19 @@ class WidgetState {
 }
 
 class Block {
-  constructor(item, data) {
+  constructor(item) {
     this.wrapper = item;
-    this.widget = data;
+    this.list = [];
     this.count = 0;
     this.block = item.querySelector('.shadow-box');
+  }
+
+  init() {
+    this.renderItems();
+    this.show();
+    if (this.list.length === 1 && this.count > 0) {
+      this.clickItem(this.list[0]);
+    }
   }
 
   show() {
@@ -524,7 +533,7 @@ class Block {
     }
     if (this.count > 0 && this.deps) {
       this.deps.forEach(item => {
-        this.widget[item].hide();
+        if (this.widget[item]) this.widget[item].hide();
       })
     }
     this.count++;
@@ -535,70 +544,74 @@ class Block {
   }
 
   scroll() {
-    window.scrollTo(0, this.wrapper.offsetTop);
+    window.scrollTo(0, this.wrapper.offsetTop - 80);
   }
 
-  loading() {
-    this.block.classList.add('shadow-box_loading');
+  renderItems() {
+    this.list = [];
+    this.block.innerHTML = '';
+    this.data.forEach(item => {
+      const listItem = document.createElement('p');
+      listItem.className = ('UMC-widget__list-item');
+      listItem.textContent = item.name;
+      listItem.dataset.id = item.id;
+      if (item.cost) {
+        listItem.dataset.cost = item.cost;
+      }
+      listItem.addEventListener('click', (e) => this.clickItem(e.currentTarget));
+      this.list.push(listItem);
+      this.block.append(listItem);
+    })
+    
+  }
+
+  clickItem(element) {
+    this.list.forEach(item => {
+      item.classList.remove('UMC-widget__list-item_selected');
+    });
+    element.classList.add('UMC-widget__list-item_selected');
+    this.widget.state.setField(this.name, element.dataset.id);
+    if (this.widget[this.next]) this.widget[this.next].init();
   }
 }
 
 class ServiceGroupArea extends Block {
-  
-  serviceList = [];
-  activeService = null;
-  
   constructor (data) {
     const area = data.widget.querySelector('.UMC-widget__servicegroups-wrapper');
-    super(area, data);
+    super(area);
+    this.data = data.groups;
+    this.name = 'service_group_id';
     this.widget = data;
-    this.box = area.querySelector('.UMC-widget__service');
-    this.deps = ['serviceArea', 'medicArea', 'calendar', 'timeArea'];
-    this.services = data.services;
-    this._init();
-  }
-  
-  _init() {
-    this._renderServiceItems();
-    this.show();
+    this.deps = ['medicArea', 'calendar', 'timeArea'];
+    this.next = 'serviceArea';
+    this.init();
   }
 
-  _renderServiceItems() {
-    this.box.innerHTML = '';
-    this.services.forEach(item => {
-      const serviceItem = document.createElement('p');
-      serviceItem.className = ('UMC-widget__service-item');
-      serviceItem.textContent = item.service_name;
-      serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
-      this.serviceList.push(serviceItem);
-      this.box.append(serviceItem);
-    })
-  }
-
-  _clickServiceItem(node, service) {
-    this.serviceList.forEach(item => {
-      item.classList.remove('UMC-widget__service-item_selected');
-    });
-    node.classList.add('UMC-widget__service-item_selected');
-    this.activeService = service;
-    this.widget.serviceArea.init();
-    this.widget.serviceArea.price = null;
+  clickItem(element) {
+    super.clickItem(element);
+    if (this.widget.serviceArea) {
+      this.widget.serviceArea.price = null;
+    }
   }
 }
 
 class ServiceArea extends Block {
-  
-  serviceList = [];
-  activeService = null;
-  
   constructor (data) {
     const area = data.widget.querySelector('.UMC-widget__services-wrapper');
-    super(area, data);
+    super(area);
     this.widget = data;
+    const id = data.state.getField('service_group_id');
+    this.data = id ? data.services.filter(item => item.service_groups.includes(id)) : data.services;
+    this.name = 'service_id';
+    this.next = 'medicArea';
     this.deps = ['medicArea', 'calendar', 'timeArea'];
-    this.services = data.services;
-    this.box = area.querySelector('.UMC-widget__service');
-    this._price = area.querySelector('.UMC-widget__service-header-price');
+    this._price = area.querySelector('.UMC-widget__list-header-price');
+  }
+
+  init() {
+    const id = this.widget.state.getField('service_group_id');
+    this.data = id ? this.widget.services.filter(item => item.service_groups.includes(id)) : this.widget.services;
+    super.init();
   }
 
   set price(val) {
@@ -609,73 +622,28 @@ class ServiceArea extends Block {
     }
   }
 
-  init() {
-    this._renderServiceItems();
-    this.show();
-  }
-
-  _renderServiceItems() {
-    this.box.innerHTML = '';
-    this.services.forEach(item => {
-      const serviceItem = document.createElement('p');
-      serviceItem.className = ('UMC-widget__service-item');
-      serviceItem.textContent = item.service_name;
-      serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
-      this.serviceList.push(serviceItem);
-      this.box.append(serviceItem);
-    })
-  }
-
-  _clickServiceItem(node, service) {
-    this.serviceList.forEach(item => {
-      item.classList.remove('UMC-widget__service-item_selected');
-    });
-    node.classList.add('UMC-widget__service-item_selected');
-    this.activeService = service;
-    this.widget.state.setField('service_id', service.service_id);
-    this.widget.medicArea.init();
-    this.price = service.service_cost;
+  clickItem(element) {
+    super.clickItem(element);
+    this.price = element.dataset.cost;
   }
 }
 
-class MedicArea extends Block {
-  serviceList = [];
-  activeService = null;
-  
+class MedicArea extends Block { 
   constructor(data) {
     const area = data.widget.querySelector('.UMC-widget__medic-wrapper');
     super(area, data);
+    const id = data.state.getField('service_id');
+    this.data = id ? data.doctors.filter(item => item.services.includes(id)) : data.doctors;
     this.widget = data;
-    this.box = area.querySelector('.UMC-widget__service');
+    this.name = 'doctor_id';
+    this.next = 'calendar';
     this.deps = ['calendar', 'timeArea'];
-    this.medics = data.medics;
   }
 
   init() {
-    this._renderServiceItems();
-    this.show();
-  }
-
-  _renderServiceItems() {
-    this.box.innerHTML = '';
-    this.medics.forEach(item => {
-      const serviceItem = document.createElement('p');
-      serviceItem.className = ('UMC-widget__service-item');
-      serviceItem.textContent = item.doctor_name;
-      serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
-      this.serviceList.push(serviceItem);
-      this.box.append(serviceItem);
-    })
-  }
-
-  _clickServiceItem(node, doctor) {
-    this.serviceList.forEach(item => {
-      item.classList.remove('UMC-widget__service-item_selected');
-    });
-    node.classList.add('UMC-widget__service-item_selected');
-    this.widget.state.setField('doctor_id', doctor.doctor_id);
-    this.widget.calendar.init();
-    this.widget.calendar.show();
+    const id = this.widget.state.getField('service_id');
+    this.data = id ? this.widget.doctors.filter(item => item.services.includes(id)) : this.widget.doctors;
+    super.init();
   }
 }
 
@@ -689,33 +657,40 @@ class Calendar extends Block {
 
   constructor(data) {
     const area = data.widget.querySelector('.UMC-widget__calendar-wrapper');
-    super(area, data);
+    super(area);
+    this.deps = ['timeArea'];
     this.date = new Date();
     this.widget = data;
-    this.deps = ['timeArea'];
-    this.medics = data.medics;
+    this.medics = data.doctors;
     this.calendar = data.widget.querySelector(".UMC-widget__calendar");
     this.arrow = area.querySelector('.UMC-widget__calendar-des-item-icon');
     this._initEvents();
-    this.init();
+    this._init();
   }
 
-  init() {
+  _init() {
     this._clearContainers();
     this._changeTimeFormat();
     this._fetchDays();
     this._render();
   }
 
+  init() {
+    this.show();
+  }
+
   _changeTimeFormat() {
-    if (this.widget.serviceArea.activeService) {
-      this.duration = new Date(this.widget.serviceArea.activeService.service_time);
-      this.duration = this.duration.getHours() * 60 + this.duration.getMinutes();
+    const id = this.widget.state.getField('service_id');
+    this.service = id && this.widget.services.find(item => item.id === id);
+    if (this.service) {
+      const time = new Date(this.service.time);
+      this.duration = time.getHours() * 60 + time.getMinutes();
     } else {
       this.duration = 30;
     }
     const userId = this.widget.state.getField('doctor_id');
-    this.user = this.medics.find(item => item.doctor_id === userId);
+    this.user = userId ? this.medics.find(item => item.id === userId) : this.medics[0];
+    if (!this.user) return false;
     this.user.time.forEach((item) => {
       const start = new Date(item.time_start);
       const end = new Date(item.time_end);      
@@ -765,10 +740,17 @@ class Calendar extends Block {
     const dayOfWeek = this.days[0].dayOfWeek;
     if (dayOfWeek != 1) {
       const emptyBoxes = [];
-      for(let i = dayOfWeek; i > 1; i--) {
-        emptyBoxes.push({empty: true});
+      if (dayOfWeek === 0) {
+        for(let i = 0; i < 6; i++) {
+          emptyBoxes.push({empty: true});
+        }
+      } else {
+        for(let i = 1; i < dayOfWeek; i++) {
+          emptyBoxes.push({empty: true});
+        }
       }
-      this.days = [...emptyBoxes.reverse(), ...this.days];
+      
+      this.days = [...emptyBoxes, ...this.days];
     }
   }
 
@@ -821,7 +803,7 @@ class Calendar extends Block {
       this.arrow.setAttribute('title', 'Следующий месяц');
     }
     this.current = !this.current;
-    this.init();
+    this._init();
   }
 }
 
@@ -1191,7 +1173,3 @@ class Input {
 			this.input.value.length > this.maxValue;
 	}
 }
-
-
-
-

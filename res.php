@@ -25,9 +25,9 @@
              <p class="UMC-widget__medic-des_bold"></p>
            </div>
            
-           <div class="UMC-widget__service-area UMC-widget_class-hidden">
-             <p class="UMC-widget__service-title">Услуга: <span></span></p>
-             <ul class="UMC-widget__service-list"></ul>
+           <div class="UMC-widget__list-area UMC-widget_class-hidden">
+             <p class="UMC-widget__list-title">Услуга: <span></span></p>
+             <ul class="UMC-widget__list-list"></ul>
            </div>
            <div class="UMC-widget__preloader-wrapper">
              <img class="UMC-widget__preloader" src="https://charite.me/local/firstbit/images/load.gif" alt="" />

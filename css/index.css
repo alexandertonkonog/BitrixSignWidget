@@ -101,20 +101,17 @@ html, body {
   padding: 12px;
   row-gap: 10px;
 }
-
 .shadow-box {
   border: 2px solid #eeeeee;
-  height: 240px;
+  height: 270px;
   position: relative;
   border-radius: 4px;
 }
-
 .shadow-box::-webkit-scrollbar {
   width: 8px; 
   border-radius: 4px;
   background-color: white;
 }
-
 .shadow-box::-webkit-scrollbar-thumb {
   background-color: #B6B6B6;
   border-radius: 4px;
@@ -205,23 +202,26 @@ html, body {
   background-color: var(--main-element-bg_hover);
   color: var(--main-element-color_hover);
 }
+.UMC-widget__time-header {
+  padding: 15px 0;
+}
 
-/*UMC-widget__service*/
+/*UMC-widget__list*/
 
-.UMC-widget__service {
+.UMC-widget__list {
   width: 100%;
   padding: 12px;
   overflow: auto;
 }
-.UMC-widget__service-header {
+.UMC-widget__list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.UMC-widget__service-header-price {
+.UMC-widget__list-header-price {
   font-weight: bold;
 }
-.UMC-widget__service-item {
+.UMC-widget__list-item {
   padding: 5px 8px;
   font-size: 14px;
   border-radius: 4px;
@@ -232,17 +232,17 @@ html, body {
   user-select: none;
   border: 1px solid var(--main-element-border_simple);
 }
-.UMC-widget__service-item:hover {
+.UMC-widget__list-item:hover {
   background-color: var(--main-element-bg);
   border-color: var(--main-element-border);
   color: var(--main-element-color);
 }
-.UMC-widget__service-item_selected {
+.UMC-widget__list-item_selected {
   background-color: var(--main-element-bg);
   border-color: var(--main-element-bg);
   color: var(--main-element-color);
 }
-.UMC-widget__service-item_selected:hover {
+.UMC-widget__list-item_selected:hover {
   background-color: var(--main-element-bg_hover);
   border-color: var(--main-element-border_hover);
   color: var(--main-element-color_hover);
