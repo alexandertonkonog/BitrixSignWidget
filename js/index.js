@@ -1,3 +1,4 @@
+const UMCWidgetInit = (options) => {
 class UMCWidget {
   error = false;
   errorField = false;
@@ -119,10 +120,10 @@ class UMCWidget {
       <div class="UMC-widget__modal-body">
         <div class="UMC-widget__modal-header">
           <h3 class="UMC-widget__modal-title">Введите личные данные</h3>
-          <div class="UMC-widget__modal-exit">&times;</div>
+          <div class="UMC-widget__modal-exit"></div>
         </div>
-        <div class="UMC-widget__modal-content">
-          <div class="UMC-widget__inputs-wrapper  UMC-widget__modal-screen" data-name="inputs">
+        <div class="UMC-widget__modal-content UMC-widget__modal-content_inside">
+          <div class="UMC-widget__inputs-wrapper UMC-widget__modal-screen" data-name="inputs">
             <div class="UMC-widget__inputs">
               <div class="UMC-widget__input-wrapper">
                 <input
@@ -180,9 +181,9 @@ class UMCWidget {
               Комментарий
             </p>
             <div class="UMC-widget__button-area">
-              <div class="UMC-widget__button" id="UMC-widget__btn-sign">
+              <button class="UMC-widget__button" id="UMC-widget__btn-sign">
                 Записаться
-              </div>
+              </button>
             </div>
             <p class="UMC-widget__private-text">
               Нажимая "Записаться на прием", Вы даете согласие на обработку
@@ -209,15 +210,13 @@ class UMCWidget {
               </div>
             </div>
           </div>
-          <div class="UMC-widget__success-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="success">
+          <div class="UMC-widget__success-wrapper UMC-widget_class-hidden  UMC-widget__modal-screen" data-name="success">
             <div class="UMC-widget__success-area">
-                <img class="UMC-widget__success-icon" src="https://charite.me/local/firstbit/images/success.png" alt="" />
                 <p class="UMC-widget__success-text"></p>
             </div>
           </div>
           <div class="UMC-widget__error-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="error">
             <div class="UMC-widget__success-area">
-                <img class="UMC-widget__success-icon" src="https://charite.me/local/firstbit/images/error.png" alt="" />
                 <p class="UMC-widget__success-text">Произошла ошибка! Попробуйте записаться еще раз или перезагрузите страницу</p>
             </div>
           </div>
@@ -247,9 +246,10 @@ class UMCWidget {
   }
 
   async _getData() {
+    const type = this.options.type || 'doctor';
     const payload = {
-        method: 'schedule',
-        data: this.options.doctors
+        method: type === 'doctor' || type === 'doctor_group' ? 'schedule' : '',
+        data: this.options.entities
     };
     // const data = await fetch(this.API_URL, {
     //   method: 'POST',
@@ -270,11 +270,11 @@ class UMCWidget {
     } else {
       this.modalMode = true;
       const modalTemplate = `
-        <div class="UMC-widget__modal UMC-widget_class-hidden">
+        <div class="UMC-widget__modal UMC-widget__modal_global UMC-widget_class-hidden">
           <div class="UMC-widget__modal-body UMC-widget__modal-body_global">
             <div class="UMC-widget__modal-header">
               <h3 class="UMC-widget__modal-title">Запись на прием</h3>
-              <div class="UMC-widget__modal-exit">&times;</div>
+              <div class="UMC-widget__modal-exit"></div>
             </div>
             <div class="UMC-widget__modal-content"></div>
           </div>
@@ -282,9 +282,9 @@ class UMCWidget {
       this.root = document.createElement('div');
       this.root.className = 'UMC-widget__container';
       this.root.innerHTML = modalTemplate;
-      this.globalModal = this.root.querySelector('.UMC-widget__modal');
+      this.globalModal = this.root.querySelector('.UMC-widget__modal_global');
       this.globalModalBody = this.root.querySelector('.UMC-widget__modal-body');
-      this.globalModalExit = this.root.querySelector('.UMC-widget__modal-body');
+      this.globalModalExit = this.root.querySelector('.UMC-widget__modal-body .UMC-widget__modal-exit');
       const content = this.globalModal.querySelector('.UMC-widget__modal-content');
       content.innerHTML = this.template;
       const template = `<img src="/images/pencil.svg" class="UMC-widget__toggler-icon" alt="Запись на прием">`;
@@ -293,15 +293,37 @@ class UMCWidget {
       this.toggler.innerHTML = template;
       this.root.append(this.toggler);
       this.widget = this.root.querySelector('.UMC-widget');
+      this.form = this.root.querySelector('.UMC-widget__form');
       this.toggler.addEventListener('click', () => {
         this.globalModal.classList.remove('UMC-widget_class-hidden');
       })
       this.globalModalExit.addEventListener('click', () => {
         this.globalModal.classList.add('UMC-widget_class-hidden');
       })
+      this.globalModal.addEventListener('click', (e) => {
+        if (e.target == this.globalModal) {
+          this.globalModal.classList.add('UMC-widget_class-hidden');
+        }
+      })
+      this.widgetModal = this.widget.querySelector('.UMC-widget__modal-content');
+      this.widgetModal.classList.add('UMC-widget_class-hidden');
+      const widgetModalContainer = this.widget.querySelector('.UMC-widget__modal-content');
+      widgetModalContainer.remove();
+      this.widget.append(widgetModalContainer);
       document.body.append(this.root);
     }
-    
+    if (this.options.backCall) {
+      const addBtnPlace = document.querySelector('.UMC-widget__button-area');
+      const btnArea = document.createElement('div');
+      btnArea.className = "UMC-widget__button-area_add";
+      const addBtn = `
+        <p>Или оставьте заявку на обратный звонок</p>
+        <button class="UMC-widget__button" id="UMC-widget__btn-back">
+          оставить заявку
+        </button>`;
+      btnArea.innerHTML = addBtn;
+      addBtnPlace.append(btnArea);
+    } 
   }
 
   _setSettings() {
@@ -312,9 +334,16 @@ class UMCWidget {
   }
 
   _formatData() {
-    this.groups = this.data.service_groups.map(item => ({id: item.group_id, name: item.group_name, services: item.services}));
-    this.doctors = this.data.doctors.map(item => ({id: item.doctor_id, name: item.doctor_name, groups: item.groups, time: item.time, services: item.services}));
-    this.services = this.data.services.map(item => ({id: item.service_id, name: item.service_name, cost: item.service_cost, time: item.service_time, service_groups: item.service_groups}));
+    this.groups = this.data.service_groups
+      .map(item => ({id: item.group_id, name: item.group_name, services: item.services}));
+    this.doctors = this.data.doctors
+      .map(item => ({id: item.doctor_id, name: item.doctor_name, groups: item.groups, time: item.time, services: item.services}));
+    this.services = this.data.services
+      .map(item => ({id: item.service_id, name: item.service_name, cost: item.service_cost, time: item.service_time}));
+    const groups = this.options.groups;
+    if (groups && groups.length) {
+      this.groups = this.groups.filter(item => groups.includes(item.id));
+    } 
   }
 
   _widgetInit() {
@@ -394,7 +423,7 @@ class UMCWidget {
     this.timeArea.init();
   }
 
-  async checkNumber() {
+  checkInputsError() {
     this.errorField = false;
     const fields = this.state.getRequiredFields();
     this.fieldArea.fields.forEach((item) => {
@@ -403,10 +432,31 @@ class UMCWidget {
         item.sendError();
       }
     });
+  }
+
+  checkCode() {
+    if (!this.options.sms) {
+      return true;
+    }
+    let input = this.fieldArea.fields.find(item => item.name === 'code');
+		if (input.error || input._isEmpty()) {
+			input.sendError();
+      return false;
+		} else {
+			let condition = btoa(input.input.value.trim()) === this.state.code;
+      return condition;
+    }
+  }
+
+  async checkNumber() {
+    this.checkInputsError();
     if (!this.errorField) {
       this.state.code = this._createCode();
       this.btnArea._showPreloader(true);
-      const result = await this._sendCode();
+      // const result = await this._sendCode();
+      const result = {
+        success: true
+      }
       this.btnArea._hidePreloader();
       if (result && result.success) {
 				this.modal.setTitle("Подтвердите номер телефона");
@@ -418,32 +468,31 @@ class UMCWidget {
   }
 
   async submit() {
-		let input = this.fieldArea.fields.find(item => item.name === 'code');
-		if (input.error || input._isEmpty()) {
-			input.sendError();
-		} else {
-			let condition = btoa(input.input.value.trim()) === this.state.code;
-			if (condition) {
-				this.btnArea._showPreloader(false);
-				let result = await this._sendInformation();
-				if (result && result.success) {
-					this.modal.setTitle("Запись произведена");
-					this.btnArea._hidePreloader();
-					this.successScreen.setData();
-					this.modal._clearInputs();
-					this.modal._changeScreen('success');
-					this.state.clearState();
-				} else {
-					this._sendModalError();
-				}
-			} else {
-				input.sendCodeError();
-			}
-		}
+    this.checkInputsError();
+    const condition = this.checkCode();
+    if (condition && !this.errorField) {
+      this.btnArea._showPreloader(false);
+      // const result = await this._sendInformation();
+      const result = {
+        success: true
+      }
+      if (result && result.success) {
+        this.modal.setTitle("Запись произведена");
+        this.btnArea._hidePreloader();
+        this.successScreen.setData();
+        this.modal._clearInputs();
+        this.modal._changeScreen('success');
+        this.state.clearState();
+      } else {
+        this._sendModalError();
+      }
+    } else {
+      input.sendCodeError();
+    }
 	}
 
-  static _sendError() {
-    
+  static _sendError(e) {
+    console.log(e);
   }
 
   _sendModalError() {
@@ -544,7 +593,12 @@ class Block {
   }
 
   scroll() {
-    window.scrollTo(0, this.wrapper.offsetTop - 80);
+    if (this.widget.modalMode) {
+      
+      this.widget.globalModalBody.scrollTo(0, this.wrapper.offsetTop - 80);
+    } else {
+      window.scrollTo(0, this.wrapper.offsetTop - 80);
+    }
   }
 
   renderItems() {
@@ -600,8 +654,7 @@ class ServiceArea extends Block {
     const area = data.widget.querySelector('.UMC-widget__services-wrapper');
     super(area);
     this.widget = data;
-    const id = data.state.getField('service_group_id');
-    this.data = id ? data.services.filter(item => item.service_groups.includes(id)) : data.services;
+    this.data = data.services;
     this.name = 'service_id';
     this.next = 'medicArea';
     this.deps = ['medicArea', 'calendar', 'timeArea'];
@@ -610,7 +663,8 @@ class ServiceArea extends Block {
 
   init() {
     const id = this.widget.state.getField('service_group_id');
-    this.data = id ? this.widget.services.filter(item => item.service_groups.includes(id)) : this.widget.services;
+    const group = this.widget.groups.find(item => item.id === id);
+    this.data = id ? this.widget.services.filter(item => group.services.includes(item.id)) : this.widget.services;
     super.init();
   }
 
@@ -872,7 +926,9 @@ class BtnArea {
 
   _init() {
     this.btn.addEventListener("click", () => {
-      this.widget.checkNumber();
+      const sms = this.widget.options.sms;
+      if (sms) this.widget.checkNumber();
+      else this.widget.submit();
     });
     this.access.addEventListener("click", () => {
       this.widget.submit();
@@ -910,29 +966,27 @@ class Modal {
 
 	constructor(widget) {
     this.widget = widget;
-    this.title = this.widget.widget.querySelector(" .UMC-widget__modal-title");
-    this.modal = this.widget.widget.querySelector(" .UMC-widget__modal");
-    this.content = this.widget.widget.querySelector(" .UMC-widget__modal-body");
-    this.exit = this.widget.widget.querySelector(" .UMC-widget__modal-exit");
+    this.title = document.querySelector(".UMC-widget__modal-title");
+    if (this.widget.modalMode) {
+      this.modal = this.widget.widgetModal;
+      this.exit = document.querySelector(".UMC-widget__modal-exit");
+    } else {
+      this.modal = this.widget.widget.querySelector(".UMC-widget__modal");
+      this.content = this.widget.widget.querySelector(".UMC-widget__modal-body");
+      this.exit = this.widget.widget.querySelector(".UMC-widget__modal-exit");
+    } 
 		this._init()
 	}
 
 	_init() {
-		let screens = this.widget.widget.querySelectorAll(' .UMC-widget__modal-screen');
-    
+		let screens = this.modal.querySelectorAll(' .UMC-widget__modal-screen');
 		screens.forEach(item => {
 			if (item.dataset.name === 'inputs') {
-        
 				this.screens.push(new FieldArea(item, this.widget));
-        
 			} else if (item.dataset.name === 'success') {
-        
 				this.screens.push(new SuccessScreen(item, this.widget));
-        
 			} else {
-        
 				this.screens.push(new ModalScreen(item, this.widget));
-        
 			}
 		});
 		this.exit.addEventListener("click", () => {
@@ -946,20 +1000,32 @@ class Modal {
 	}
 
 	_showModal() {
-    document.body.style.overflow = "hidden";
-    this.modal.classList.remove("UMC-widget_class-hidden");
-    setTimeout(() => {
-      this.content.classList.remove("UMC-widget__modal-body_hidden");
-    }, 100);
+    if (this.widget.modalMode) {
+      this.widget.form.classList.add('UMC-widget_class-hidden');
+      this.modal.classList.remove('UMC-widget_class-hidden');
+      this.widget.widget.classList.add('UMC-widget_modal-open');
+    } else {
+      document.body.style.overflow = "hidden";
+      this.modal.classList.remove("UMC-widget_class-hidden");
+      setTimeout(() => {
+        this.content.classList.remove("UMC-widget__modal-body_hidden");
+      }, 100);
+    }
   }
 
   _hideModal() {
-    this.content.classList.add("UMC-widget__modal-body_hidden");
-    setTimeout(() => {
-      this.modal.classList.add("UMC-widget_class-hidden");
-      document.body.style.overflow = "auto";
-      this._exitModalCallback();
-    }, 100);
+    if (this.widget.modalMode) {
+      this.widget.form.classList.remove('UMC-widget_class-hidden');
+      this.modal.classList.add('UMC-widget_class-hidden');
+      this.widget.widget.classList.remove('UMC-widget_modal-open');
+    } else {
+      this.content.classList.add("UMC-widget__modal-body_hidden");
+      setTimeout(() => {
+        this.modal.classList.add("UMC-widget_class-hidden");
+        document.body.style.overflow = "auto";
+        this._exitModalCallback();
+      }, 100);
+    }
 	}
 	
 	_changeScreen(name) {
@@ -975,25 +1041,16 @@ class Modal {
   
   _exitModalCallback() {
     switch (this.activeScreen) {
-      case 'accept': {
-        this.widget.calendar._disableTimeElements();
-        break;
-      }
       case 'success': {
-        this.widget.calendar._activeTimeElements();
-        this.widget.calendar.activeTime.remove();
-        this.widget.calendar.activeTime = null;
-        this.widget.calendar._removeFromScreens();
         this._changeScreen('inputs');
         break;
       }
       case 'error': {
-        this.widget.calendar._activeTimeElements();
         this._changeScreen('inputs');
         break;
       }
       default: {
-    
+        return true;
       }
     }
   }
@@ -1025,8 +1082,8 @@ class FieldArea extends ModalScreen {
   }
 
   _init() {
-    let inputs = this.widget.widget.querySelectorAll(" .UMC-widget__input-wrapper");
-    let openInputBtns = this.widget.widget.querySelectorAll(+ " .UMC-widget__open-input");
+    let inputs = this.widget.widget.querySelectorAll(".UMC-widget__input-wrapper");
+    let openInputBtns = this.widget.widget.querySelectorAll(".UMC-widget__open-input");
     inputs.forEach((item) => {
       this.fields.push(new Input(item, this.widget));
     });
@@ -1051,15 +1108,30 @@ class SuccessScreen extends ModalScreen {
 	constructor(item, widget) {
 		super(item, widget);
 		this.node = item.querySelector(' .UMC-widget__success-text');
+    this.str = 'Вы записались на прием к врачу <span class="UMC-widget__success-highlight">#DOCTOR#<span> на <span class="UMC-widget__success-highlight">#DATE#<span> в <span class="UMC-widget__success-highlight">#TIME#<span>';
 	}
 
+  getResultString(str = this.str, info) {
+    let resultString = str;
+    for (let key in info) {
+      resultString = resultString.replace('#' + key + '#', info[key]);
+    }
+    return resultString;
+  }
+
 	setData() {
-		let state = this.widget.state.getField('dateTime');
-		let date = new Date(state);
-		let dateStr = ("0" + date.getDate()).slice(-2) + '.' + ("0" + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
-		let timeStr = ("0" + date.getHours()).slice(-2) + ':' + ("0" + date.getMinutes()).slice(-2);
-		let user = this.widget.user.doctor_name;
-		this.node.innerHTML = `Вы записались на прием к врачу <span class="UMC-widget__success-highlight">${user}<span> на <span class="UMC-widget__success-highlight">${dateStr}<span> в <span class="UMC-widget__success-highlight">${timeStr}<span>`;
+		const state = this.widget.state.getField('dateTime');
+		const doctorId = this.widget.state.getField('doctor_id');
+		const date = new Date(state);
+    const user = this.widget.doctors.find(item => item.id === doctorId);
+    
+    const outInfo = {
+      DATE: ("0" + date.getDate()).slice(-2) + '.' + ("0" + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear(),
+      TIME: ("0" + date.getHours()).slice(-2) + ':' + ("0" + date.getMinutes()).slice(-2),
+      DOCTOR: user.name
+    }		
+
+		this.node.innerHTML = this.getResultString(this.widget.options.text, outInfo);
 	}
 }
 
@@ -1172,4 +1244,7 @@ class Input {
 			this.input.value.length < this.minValue ||
 			this.input.value.length > this.maxValue;
 	}
+}
+window.umcwidget = new UMCWidget(options);
+
 }

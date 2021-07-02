@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <!-- <link rel="stylesheet" href="https://charite.me/local/firstbit/index.css" /> -->
     <link rel="stylesheet" href="css/index.css" />
     <title>Document</title>
   </head>
@@ -15,10 +14,17 @@
     <script src="js/index.js"></script>
     <script>
       const options = {
-        doctors: ['2f8be2a2-a656-11e9-4199-34e12d3559cb'],
-        root: 'container'
+        entities: ['2f8be2a2-a656-11e9-4199-34e12d3559cb'],  // идентификаторы врачей или услуг (смешивать нельзя), заполняются всегда, если массив пустой, будут высланы все (не рекомендуется)
+        groups: ['123123123', '123123223'], // идентификаторы групп услуг или специализаций
+        type: 'doctor', // doctor || service // чьи идентификаторы закреплены в entities
+        root: 'container', // идентификатор контейнера для виджета
+        backCall: true, // наличие кнопки для обратного звонка
+        sms: false, // наличие подтверждения по смс
+        text: 'Вы записались на прием к врачу <span class="UMC-widget__success-highlight">#DOCTOR#<span> на <span class="UMC-widget__success-highlight">#DATE#<span> в <span class="UMC-widget__success-highlight">#TIME#<span>',
+        //текст оповещения о записи
       }
-      window.umcwidget = new UMCWidget(options);
+      UMCWidgetInit(options);
     </script>
   </body>
 </html>
+ 

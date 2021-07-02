@@ -23,6 +23,9 @@ html, body {
   width: 1400px;
   margin: 20px auto;
 }
+.UMC-widget_modal-open {
+  width: 500px;
+}
 
 .UMC-widget__form {
   display: grid;
@@ -50,7 +53,7 @@ html, body {
 }
 
 .UMC-widget__section-header {
-  padding: 15px 12px;
+  padding: 15px 0;
   color: var(--main-text);
 }
 .UMC-widget__section-header * {
@@ -76,7 +79,7 @@ html, body {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  
+  padding: 15px 12px;
   column-gap: 7px;
   justify-self: center;
 }
@@ -202,9 +205,7 @@ html, body {
   background-color: var(--main-element-bg_hover);
   color: var(--main-element-color_hover);
 }
-.UMC-widget__time-header {
-  padding: 15px 0;
-}
+
 
 /*UMC-widget__list*/
 
@@ -315,6 +316,12 @@ html, body {
 .UMC-widget__button-area {
   padding: 0;
 }
+.UMC-widget__button-area_add {
+  margin-top: 20px;
+}
+.UMC-widget__button-area_add p {
+  text-align: center;
+}
 .UMC-widget__button {
   background-color: var(--main-element-bg);
   font-weight: 500;
@@ -328,6 +335,7 @@ html, body {
   overflow: hidden;
   transition: all ease 0.1s;
   text-transform: uppercase;
+  border: none;
 }
 .UMC-widget__preloader-btn {
   height: 20px;
@@ -407,8 +415,8 @@ html, body {
   margin-bottom: 10px;
 }
 .UMC-widget__success-text {
-  font-size: 16px;
   line-height: 20px;
+  line-height: 25px;
   color: #979ea7;
   text-align: left;
 }
@@ -441,7 +449,10 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999!important;
+  z-index: 5000!important;
+}
+.UMC-widget__modal .UMC-widget__modal {
+  z-index: 5001;
 }
 .UMC-widget__modal-body {
   background-color: #fff;
@@ -456,6 +467,10 @@ html, body {
 .UMC-widget__modal-body_global {
   width: auto;
   padding: 20px;
+  overflow: auto;
+}
+.UMC-widget__modal-body_auto-height {
+  overflow: visible;
 }
 .UMC-widget__modal-body_hidden {
   visibility: hidden;
@@ -474,8 +489,10 @@ html, body {
   letter-spacing: 0.15px;
   color: var(--main-text);
 }
+/* .UMC-widget__modal-content_inside {
+  width: 500px;
+} */
 .UMC-widget__modal-exit {
-  font-size: 28px;
   width: 44px;
   height: 44px;
   padding: 10px;
@@ -484,12 +501,15 @@ html, body {
   align-items: center;
   vertical-align: middle;
   border-radius: 50%;
-  color: #adb0b8;
+  background-image: url(../images/close.svg);
+  background-repeat: no-repeat;
+  background-size: 15px;
+  background-position: center;
   cursor: pointer;
   transition: all ease 0.15s;
 }
 .UMC-widget__modal-exit:hover {
-  background: #f1f3f6;
+  background-color: #f1f3f6;
   color: #5b5d63;
 }
 .UMC-widget__private-text {
@@ -582,6 +602,9 @@ html, body {
   .UMC-widget {
     width: 1200px;
   }
+  .UMC-widget_modal-open {
+    width: 500px;
+  }
   .UMC-widget__form {
     grid-template-columns: 1fr 1fr 1fr;
     row-gap: 40px;
@@ -601,6 +624,9 @@ html, body {
   .UMC-widget {
     width: 700px;
   }
+  .UMC-widget_modal-open {
+    width: 500px;
+  }
   .UMC-widget__form {
     grid-template-columns: 1fr 1fr;
     row-gap: 20px;
@@ -610,16 +636,27 @@ html, body {
   .UMC-widget {
     width: 90%;
   }
-  .UMC-widget__modal-body_global {
+  .UMC-widget__modal-body {
+    height: 100vh;
     width: 100%;
+    max-height: none;
+    border-radius: 0;
+  }
+  .UMC-widget__modal-body {
+    padding: 30px 10px;
+  }
+  .UMC-widget__modal-body_global {
     padding: 30px 0;
   }
   .UMC-widget__modal-body_global .UMC-widget__modal-header {
-    padding: 0 20px;
+    padding: 0 10px;
   }
   .UMC-widget__form {
     grid-template-columns: 1fr;
   }
+  /* .UMC-widget__modal-content_inside {
+    width: 100%;
+  } */
 
   /* shadow-box */
   .shadow-box {

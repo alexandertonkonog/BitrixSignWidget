@@ -122,6 +122,11 @@
       "group_name": "Группа услуг 1",
       "group_id": "123123123",
       "services": ["108692c9-c969-11e9-badf-d8cb8a9cbe49", "de48423e-a668-11e9-5e95-34e12d3559cb", "de484246-a668-11e9-5e95-34e12d3559cb"]
+    },
+    {
+      "group_name": "Группа услуг 2",
+      "group_id": "123123223",
+      "services": ["108692c9-c969-11e9-badf-d8cb8a9cbe49", "de48423e-a668-11e9-5e95-34e12d3559cb", "de484246-a668-11e9-5e95-34e12d3559cb"]
     }
   ],
   "services": [
@@ -129,50 +134,43 @@
       "service_id": "108692c9-c969-11e9-badf-d8cb8a9cbe49",
       "service_name": "Люминесцентная диагностика (осмотр под лампой Вуда)",
       "service_cost": "500",
-      "service_time": "0001-01-01T00:30:00",
-      "service_groups": ["123123123", "21312213"]
+      "service_time": "0001-01-01T00:30:00"
       },
       {
       "service_id": "de48423e-a668-11e9-5e95-34e12d3559cb",
       "service_name": "Визуальное исследование в дерматологии (Трихоскопия)",
       "service_cost": "1 000",
-      "service_time": "0001-01-01T00:30:00",
-      "service_groups": ["21312213"]
+      "service_time": "0001-01-01T00:30:00"
       },
       {
       "service_id": "de484246-a668-11e9-5e95-34e12d3559cb",
       "service_name": "Прием врача-дерматовенеролога повторный",
       "service_cost": "1 000",
-      "service_time": "0001-01-01T00:30:00",
-      "service_groups": ["21312213"]
+      "service_time": "0001-01-01T00:30:00"
       },
       {
       "service_id": "de484247-a668-11e9-5e95-34e12d3559cb",
       "service_name": "Профилактический прием (осмотр, консультация) врача-дерматовенеролога",
       "service_cost": "500",
-      "service_time": "0001-01-01T00:30:00",
-      "service_groups": ["123123123", "21312213"]
+      "service_time": "0001-01-01T00:30:00"
       },
       {
       "service_id": "de48423f-a668-11e9-5e95-34e12d3559cb",
       "service_name": "Прием врача-дерматоонколога с осмотром кожи под увеличением (дерматоскопия)",
       "service_cost": "1 500",
-      "service_time": "0001-01-01T00:30:00",
-      "service_groups": ["123123123", "21312213"]
+      "service_time": "0001-01-01T00:30:00"
       },
       {
       "service_id": "2f8be2be-a656-11e9-4199-34e12d3559cb",
       "service_name": "Дерматоскопия (дополнительно к консультации врача-дерматовенеролога)",
       "service_cost": "500",
-      "service_time": "0001-01-01T00:15:00",
-      "service_groups": ["123123123"]
+      "service_time": "0001-01-01T00:15:00"
       },
       {
       "service_id": "de484245-a668-11e9-5e95-34e12d3559cb",
       "service_name": "Прием врача-дерматовенеролога первичный",
       "service_cost": "1 200",
-      "service_time": "0001-01-01T00:30:00",
-      "service_groups": ["123123123", "21312213"]
+      "service_time": "0001-01-01T00:30:00"
       }
   ]
 }
