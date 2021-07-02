@@ -917,4 +917,3 @@ class Input {
 	}
 }
 
-window.umcwidget = new UMCWidget(window.UMCWidget);

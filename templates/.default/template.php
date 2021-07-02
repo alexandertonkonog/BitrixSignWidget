@@ -204,7 +204,9 @@ use Bitrix\Main\Page\Asset;
 	<div class="UMC-widget__medic-id UMC-widget_class-hidden" data-medic="<?=$arResult["ID"]?>"></div>
 </section>
 <script>
+	window.UMCWidget = {};
 	// window.API_URL = "<?=$this->GetFolder();?>/ajax.php"
 	window.UMCWidget.API_URL = "<?=$this->GetFolder();?>/data.json";
 	window.UMCWidget.id = "<?=$arResult["ID"]?>";
+	window.umcwidget = new UMCWidget(window.UMCWidget);
 </script>
