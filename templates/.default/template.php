@@ -190,13 +190,11 @@ use Bitrix\Main\Page\Asset;
 		</div>
 		<div class="UMC-widget__success-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="success">
 			<div class="UMC-widget__success-area">
-				<img class="UMC-widget__success-icon" src="https://charite.me/local/firstbit/images/success.png" alt="" />
 				<p class="UMC-widget__success-text"></p>
 			</div>
 		</div>
 		<div class="UMC-widget__error-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="error">
 			<div class="UMC-widget__success-area">
-				<img class="UMC-widget__success-icon" src="https://charite.me/local/firstbit/images/error.png" alt="" />
 				<p class="UMC-widget__success-text">Произошла ошибка! Попробуйте записаться еще раз или перезагрузите страницу</p>
 			</div>
 		</div>
@@ -206,5 +204,7 @@ use Bitrix\Main\Page\Asset;
 	<div class="UMC-widget__medic-id UMC-widget_class-hidden" data-medic="<?=$arResult["ID"]?>"></div>
 </section>
 <script>
-	window.API_URL = "<?=$this->GetFolder();?>/ajax.php"
+	// window.API_URL = "<?=$this->GetFolder();?>/ajax.php"
+	window.UMCWidget.API_URL = "<?=$this->GetFolder();?>/data.json";
+	window.UMCWidget.id = "<?=$arResult["ID"]?>";
 </script>

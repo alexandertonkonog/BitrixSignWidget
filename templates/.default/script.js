@@ -1,61 +1,61 @@
-// window.API_URL = 'https://charite.me/local/firstbit/data.php';
-
-class Widget {
+class UMCWidget {
   error = false;
   errorField = false;
 
-  constructor(item) {
-    this.widget = item;
-    this.state = new WidgetState();
-    this.state.setField('site_id', window.location.origin);
-    this.idContainer = this.widget.querySelector('.UMC-widget__medic-id');
-    this.id = this.idContainer.dataset.medic;
-    if (!this.id) {
-      this.id = this.idContainer.textContent;
-    }
-    this.name = 'UMC-widget' + this.id;
-    this.dotName = '.' + this.name;
-    this.widget.classList.add(this.name);
-    
+  constructor(options) {
+    this.options = options;
+    this.API_URL = options.API_URL;
     this._init();
-    if (!window.UMCWidget.list) {
-      window.UMCWidget.list = [];
-    }
-    window.UMCWidget.list.push(this);
-    window.UMCWidget['Widget' + this.id] = this;
   }
 
   async _init() {
     try {
-      this._initEvents();
-      this._setUser();
+      await this._getData();
+      this._formatData();
       this._widgetInit();
     } catch (e) {
-      console.log(e)
-      Widget._sendError([this.widget]);
+      console.error(e)
     }
   }
 
+  async _getData() {
+    const payload = {
+        method: 'schedule',
+        data: [this.options.id]
+    };
+    // const data = await fetch(this.API_URL, {
+    //   method: 'POST',
+    //   body: JSON.stringify(payload),
+    // });
+    const data = await fetch(this.API_URL);
+    this.data = await data.json();
+  }
+
+  _formatData() {
+    this.groups = this.data.service_groups
+      .map(item => ({id: item.group_id, name: item.group_name, services: item.services}));
+    this.doctors = this.data.doctors
+      .map(item => ({id: item.doctor_id, name: item.doctor_name, groups: item.groups, time: item.time, services: item.services}));
+    this.services = this.data.services
+      .map(item => ({id: item.service_id, name: item.service_name, cost: item.service_cost, time: item.service_time}));
+  }
+
   _widgetInit() {
-    
+    this._initEvents();
+    this.state = new WidgetState();
+    this.state.setField('site_id', window.location.origin);
+    this.state.setField('doctor_id', this.options.id);
     this.serviceGroupArea = new ServiceGroupArea(this);
     this.serviceArea = new ServiceArea(this);
     this.calendar = new Calendar(this);
     this.timeArea = new TimeArea(this);
+    //
+    this.serviceGroupArea.init();
+    //
 		this.modal = new Modal(this);
 		this.btnArea = new BtnArea(this);
 		this.fieldArea = this.modal.screens.find(item => item.name === 'inputs');
 		this.successScreen = this.modal.screens.find(item => item.name === 'success');
-  }
-
-  _setUser() {
-    this.user = window.UMCWidget.data.find((item) => item.doctor_id === this.id);
-    if (!this.user) {
-      throw new Error('error');
-    } else {
-      this.state.setField("doctor_id", this.id);
-    }
-    
   }
 
   _initEvents() {
@@ -74,7 +74,7 @@ class Widget {
       method: 'sms',
     }
     try {
-      let data = await fetch(window.API_URL, {
+      let data = await fetch(this.API_URL, {
         method: 'POST',
         body: JSON.stringify(codeMessage)
       });
@@ -88,7 +88,7 @@ class Widget {
     const state = this.state.getState();	
     const payload = {data: state, method: 'appointment'};
 		try {
-			const data = await fetch(window.API_URL, {
+			const data = await fetch(this.API_URL, {
         method: 'POST',
         body: JSON.stringify(payload)
       });
@@ -102,10 +102,10 @@ class Widget {
   async refreshInformation() {
     const payload = {
       method: 'schedule',
-      data: [this.id]
+      data: [this.options.id]
     }
     
-    let data = await fetch(window.API_URL, {
+    let data = await fetch(this.API_URL, {
       method: 'POST',
       body: JSON.stringify(payload),
     })
@@ -117,7 +117,7 @@ class Widget {
     this.timeArea.init();
   }
 
-  async checkNumber() {
+  checkInputsError() {
     this.errorField = false;
     const fields = this.state.getRequiredFields();
     this.fieldArea.fields.forEach((item) => {
@@ -126,10 +126,28 @@ class Widget {
         item.sendError();
       }
     });
+  }
+
+  checkCode() {
+    let input = this.fieldArea.fields.find(item => item.name === 'code');
+		if (input.error || input._isEmpty()) {
+			input.sendError();
+      return false;
+		} else {
+			let condition = btoa(input.input.value.trim()) === this.state.code;
+      return condition;
+    }
+  }
+
+  async checkNumber() {
+    this.checkInputsError();
     if (!this.errorField) {
       this.state.code = this._createCode();
       this.btnArea._showPreloader(true);
-      const result = await this._sendCode();
+      // const result = await this._sendCode();
+      const result = {
+        success: true
+      }
       this.btnArea._hidePreloader();
       if (result && result.success) {
 				this.modal.setTitle("Подтвердите номер телефона");
@@ -141,34 +159,31 @@ class Widget {
   }
 
   async submit() {
-		let input = this.fieldArea.fields.find(item => item.name === 'code');
-		if (input.error || input._isEmpty()) {
-			input.sendError();
-		} else {
-			let condition = btoa(input.input.value.trim()) === this.state.code;
-			if (condition) {
-				this.btnArea._showPreloader(false);
-				let result = await this._sendInformation();
-				if (result && result.success) {
-					this.modal.setTitle("Запись произведена");
-					this.btnArea._hidePreloader();
-					this.successScreen.setData();
-					this.modal._clearInputs();
-					this.modal._changeScreen('success');
-					this.state.clearState();
-				} else {
-					this._sendModalError();
-				}
-			} else {
-				input.sendCodeError();
-			}
-		}
+    this.checkInputsError();
+    const condition = this.checkCode();
+    if (condition && !this.errorField) {
+      this.btnArea._showPreloader(false);
+      // const result = await this._sendInformation();
+      const result = {
+        success: true
+      }
+      if (result && result.success) {
+        this.modal.setTitle("Запись произведена");
+        this.btnArea._hidePreloader();
+        this.successScreen.setData();
+        this.modal._clearInputs();
+        this.modal._changeScreen('success');
+        this.state.clearState();
+      } else {
+        this._sendModalError();
+      }
+    } else {
+      input.sendCodeError();
+    }
 	}
 
-  static _sendError(widgets) {
-    widgets.forEach(item => {
-      
-    })
+  static _sendError(e) {
+    console.log(e);
   }
 
   _sendModalError() {
@@ -213,8 +228,8 @@ class WidgetState {
   }
 
   clearState() {
-		this._state = {};
-		this._code = null;
+    this._state = {};
+    this._code = null;
   }
 
   getRequiredFields() {
@@ -237,8 +252,17 @@ class WidgetState {
 class Block {
   constructor(item) {
     this.wrapper = item;
-    this.block = item.querySelector('.shadow-box');
+    this.list = [];
     this.count = 0;
+    this.block = item.querySelector('.shadow-box');
+  }
+
+  init() {
+    this.renderItems();
+    this.show();
+    if (this.list.length === 1 && this.count > 0) {
+      this.clickItem(this.list[0]);
+    }
   }
 
   show() {
@@ -249,7 +273,7 @@ class Block {
     }
     if (this.count > 0 && this.deps) {
       this.deps.forEach(item => {
-        this.widget[item].hide();
+        if (this.widget[item]) this.widget[item].hide();
       })
     }
     this.count++;
@@ -260,71 +284,74 @@ class Block {
   }
 
   scroll() {
-    window.scrollTo(0, this.wrapper.offsetTop - 100);
+    window.scrollTo(0, this.wrapper.offsetTop - 80);
   }
 
-  loading() {
-    this.block.classList.add('shadow-box_loading');
+  renderItems() {
+    this.list = [];
+    this.block.innerHTML = '';
+    this.data.forEach(item => {
+      const listItem = document.createElement('p');
+      listItem.className = ('UMC-widget__list-item');
+      listItem.textContent = item.name;
+      listItem.dataset.id = item.id;
+      if (item.cost) {
+        listItem.dataset.cost = item.cost;
+      }
+      listItem.addEventListener('click', (e) => this.clickItem(e.currentTarget));
+      this.list.push(listItem);
+      this.block.append(listItem);
+    })
+    
+  }
+
+  clickItem(element) {
+    this.list.forEach(item => {
+      item.classList.remove('UMC-widget__list-item_selected');
+    });
+    element.classList.add('UMC-widget__list-item_selected');
+    this.widget.state.setField(this.name, element.dataset.id);
+    if (this.widget[this.next]) this.widget[this.next].init();
   }
 }
 
 class ServiceGroupArea extends Block {
-  
-  serviceList = [];
-  activeService = null;
-  
   constructor (data) {
     const area = data.widget.querySelector('.UMC-widget__servicegroups-wrapper');
     super(area);
+    this.data = data.groups;
+    this.name = 'service_group_id';
     this.widget = data;
-    this.id = data.id;
-    this.user = data.user;
-    this.wrapper = area.querySelector('.UMC-widget__service');
-    this._init();
-  }
-  
-  _init() {
-    this._renderServiceItems();
-    this.show();
+    this.deps = ['medicArea', 'calendar', 'timeArea'];
+    this.next = 'serviceArea';
+    this.init();
   }
 
-  _renderServiceItems() {
-    this.wrapper.innerHTML = '';
-    this.user.services.forEach(item => {
-      const serviceItem = document.createElement('p');
-      serviceItem.className = ('UMC-widget__service-item');
-      serviceItem.textContent = item.service_name;
-      serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
-      this.serviceList.push(serviceItem);
-      this.wrapper.append(serviceItem);
-    })
-  }
-
-  _clickServiceItem(node, service) {
-    this.serviceList.forEach(item => {
-      item.classList.remove('UMC-widget__service-item_selected');
-    });
-    node.classList.add('UMC-widget__service-item_selected');
-    this.activeService = service;
-    this.widget.serviceArea.init();
-    this.widget.serviceArea.price = null;
+  clickItem(element) {
+    super.clickItem(element);
+    if (this.widget.serviceArea) {
+      this.widget.serviceArea.price = null;
+    }
   }
 }
 
 class ServiceArea extends Block {
-  
-  serviceList = [];
-  activeService = null;
-  
   constructor (data) {
     const area = data.widget.querySelector('.UMC-widget__services-wrapper');
     super(area);
     this.widget = data;
-    this.id = data.id;
-    this.user = data.user;
-    this.deps = ['calendar', 'timeArea'];
-    this.wrapper = area.querySelector('.UMC-widget__service');
-    this._price = area.querySelector('.UMC-widget__service-header-price');
+    this.data = data.services;
+    this.name = 'service_id';
+    this.next = 'medicArea';
+    this.deps = ['medicArea', 'calendar', 'timeArea'];
+    this._price = area.querySelector('.UMC-widget__list-header-price');
+  }
+
+  init() {
+    const id = this.widget.state.getField('service_group_id');
+    const group = this.widget.groups.find(item => item.id === id);
+    this.data = id ? this.widget.services.filter(item => group.services.includes(item.id)) : this.widget.services;
+    super.init();
   }
 
   set price(val) {
@@ -335,34 +362,28 @@ class ServiceArea extends Block {
     }
   }
 
+  clickItem(element) {
+    super.clickItem(element);
+    this.price = element.dataset.cost;
+  }
+}
+
+class MedicArea extends Block { 
+  constructor(data) {
+    const area = data.widget.querySelector('.UMC-widget__medic-wrapper');
+    super(area, data);
+    const id = data.state.getField('service_id');
+    this.data = id ? data.doctors.filter(item => item.services.includes(id)) : data.doctors;
+    this.widget = data;
+    this.name = 'doctor_id';
+    this.next = 'calendar';
+    this.deps = ['calendar', 'timeArea'];
+  }
+
   init() {
-    this._renderServiceItems();
-    this.show();
-  }
-
-  _renderServiceItems() {
-    this.wrapper.innerHTML = '';
-    this.user.services.forEach(item => {
-      const serviceItem = document.createElement('p');
-      serviceItem.className = ('UMC-widget__service-item');
-      serviceItem.textContent = item.service_name;
-      serviceItem.addEventListener('click', () => this._clickServiceItem(serviceItem, item));
-      this.serviceList.push(serviceItem);
-      this.wrapper.append(serviceItem);
-    })
-  }
-
-  _clickServiceItem(node, service) {
-    this.serviceList.forEach(item => {
-      item.classList.remove('UMC-widget__service-item_selected');
-    });
-    node.classList.add('UMC-widget__service-item_selected');
-    this.activeService = service;
-    this.widget.state.setField('service_id', service.service_id);
-    this.widget.calendar.init();
-    this.widget.calendar.show();
-    this.price = service.service_cost;
-    console.log(service);
+    const id = this.widget.state.getField('service_id');
+    this.data = id ? this.widget.doctors.filter(item => item.services.includes(id)) : this.widget.doctors;
+    super.init();
   }
 }
 
@@ -370,7 +391,6 @@ class Calendar extends Block {
   daysOfWeek = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
   calendarElements = [];
   timeArray = [];
-  
   selectedDay = null;
   days = [];
   current = true;
@@ -378,31 +398,39 @@ class Calendar extends Block {
   constructor(data) {
     const area = data.widget.querySelector('.UMC-widget__calendar-wrapper');
     super(area);
+    this.deps = ['timeArea'];
     this.date = new Date();
-    this.deps = ['timeArea']
     this.widget = data;
-    this.id = data.id;
-    this.user = data.user;
+    this.medics = data.doctors;
     this.calendar = data.widget.querySelector(".UMC-widget__calendar");
     this.arrow = area.querySelector('.UMC-widget__calendar-des-item-icon');
     this._initEvents();
-    this.init();
+    this._init();
   }
 
-  init() {
+  _init() {
     this._clearContainers();
     this._changeTimeFormat();
     this._fetchDays();
     this._render();
   }
 
+  init() {
+    this.show();
+  }
+
   _changeTimeFormat() {
-    if (this.widget.serviceArea.activeService) {
-      this.duration = new Date(this.widget.serviceArea.activeService.service_time);
-      this.duration = this.duration.getHours() * 60 + this.duration.getMinutes();
+    const id = this.widget.state.getField('service_id');
+    this.service = id && this.widget.services.find(item => item.id === id);
+    if (this.service) {
+      const time = new Date(this.service.time);
+      this.duration = time.getHours() * 60 + time.getMinutes();
     } else {
       this.duration = 30;
     }
+    const userId = this.widget.state.getField('doctor_id');
+    this.user = userId ? this.medics.find(item => item.id === userId) : this.medics[0];
+    if (!this.user) return false;
     this.user.time.forEach((item) => {
       const start = new Date(item.time_start);
       const end = new Date(item.time_end);      
@@ -452,10 +480,17 @@ class Calendar extends Block {
     const dayOfWeek = this.days[0].dayOfWeek;
     if (dayOfWeek != 1) {
       const emptyBoxes = [];
-      for(let i = dayOfWeek; i > 1; i--) {
-        emptyBoxes.push({empty: true});
+      if (dayOfWeek === 0) {
+        for(let i = 0; i < 6; i++) {
+          emptyBoxes.push({empty: true});
+        }
+      } else {
+        for(let i = 1; i < dayOfWeek; i++) {
+          emptyBoxes.push({empty: true});
+        }
       }
-      this.days = [...emptyBoxes.reverse(), ...this.days];
+      
+      this.days = [...emptyBoxes, ...this.days];
     }
   }
 
@@ -468,7 +503,7 @@ class Calendar extends Block {
         if (item.free) {
           day.className = 'UMC-widget__calendar-item';
         } else {
-          day.className = 'UMC-widget__calendar-item UMC-widget__calendar-item_red';
+          day.className = 'UMC-widget__calendar-item UMC-widget__calendar-item_busy';
         }
         day.textContent = item.day;
         day.addEventListener('click', () => this._clickCalendarElement(day, item));
@@ -508,24 +543,24 @@ class Calendar extends Block {
       this.arrow.setAttribute('title', 'Следующий месяц');
     }
     this.current = !this.current;
-    this.init();
+    this._init();
   }
 }
 
 class TimeArea extends Block {
   constructor(data) {
     const area = data.widget.querySelector('.UMC-widget__time-container');
-    super(area);
+    super(area, data);
     this.months = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
     this.widget = data;
-    this.wrapper = area.querySelector('.shadow-box');
+    this.box = area.querySelector('.shadow-box');
     this.textItem = area.querySelector('.UMC-widget__time-header');
     const date = new Date();
     this.setText({day: date.getDate(), month: date.getMonth()});
   }
 
   init() {
-    this.wrapper.innerHTML = '';
+    this.box.innerHTML = '';
     this.day = this.widget.calendar.selectedDay;
     this.duration = this.widget.calendar.duration;
     this.timeArray = this.widget.calendar.timeArray.filter(item => {
@@ -554,30 +589,15 @@ class TimeArea extends Block {
       dateTime.setMinutes(dateTime.getMinutes() + this.duration);
       const end = ("0" + dateTime.getHours()).slice(-2) + ":" + ("0" + dateTime.getMinutes()).slice(-2);
       const timeElement = document.createElement('p');
-      timeElement.className = 'UMC-widget__time-item';
-      
-      let template = `
-        <span class="UMC-widget__time-time">${start}</span>
-        <span class="UMC-widget__time-space"></span>
-        <span class="UMC-widget__time-time">${end}</span>`;
+      timeElement.textContent = `${start}-${end}`;
 
       if (this.day.free) {
-        timeElement.classList.add('UMC-widget__time-item_free');
-        template += `
-          <span class="UMC-widget__time-sign">
-            <span class="UMC-widget__time-sign-icon">+</span>
-          </span>`;
+        timeElement.className = 'UMC-widget__time-item UMC-widget__time-item_free';
       } else {
-        template += `
-          <span class="UMC-widget__time-sign">
-            <span class="UMC-widget__time-sign-icon">+</span>
-            Занято
-          </span>`
+        timeElement.className = 'UMC-widget__time-item';
       }
-      timeElement.innerHTML = template;
-      const icon = timeElement.querySelector('.UMC-widget__time-sign-icon');
-      icon.addEventListener('click', () => this.clickTimeElement(item));
-      this.wrapper.append(timeElement);
+      timeElement.addEventListener('click', () => this.clickTimeElement(item));
+      this.box.append(timeElement);
     })
   }
 }
@@ -585,8 +605,8 @@ class TimeArea extends Block {
 class BtnArea {
   constructor(widget) {
     this.widget = widget;
-    this.btn = document.querySelector(this.widget.dotName + " #UMC-widget__btn-sign");
-    this.access = document.querySelector(this.widget.dotName + " #UMC-widget__btn-accept");
+    this.btn = this.widget.widget.querySelector(" #UMC-widget__btn-sign");
+    this.access = this.widget.widget.querySelector(" #UMC-widget__btn-accept");
     this._init();
   }
 
@@ -630,29 +650,22 @@ class Modal {
 
 	constructor(widget) {
     this.widget = widget;
-    this.title = document.querySelector(this.widget.dotName + " .UMC-widget__modal-title");
-    this.modal = document.querySelector(this.widget.dotName + " .UMC-widget__modal");
-    this.content = document.querySelector(this.widget.dotName + " .UMC-widget__modal-body");
-    this.exit = document.querySelector(this.widget.dotName + " .UMC-widget__modal-exit");
+    this.title = document.querySelector(".UMC-widget__modal-title");
+    this.modal = this.widget.widget.querySelector(".UMC-widget__modal");
+    this.content = this.widget.widget.querySelector(".UMC-widget__modal-body");
+    this.exit = this.widget.widget.querySelector(".UMC-widget__modal-exit");
 		this._init()
 	}
 
 	_init() {
-		let screens = document.querySelectorAll(this.widget.dotName + ' .UMC-widget__modal-screen');
-    
+		let screens = this.modal.querySelectorAll(' .UMC-widget__modal-screen');
 		screens.forEach(item => {
 			if (item.dataset.name === 'inputs') {
-        
 				this.screens.push(new FieldArea(item, this.widget));
-        
 			} else if (item.dataset.name === 'success') {
-        
 				this.screens.push(new SuccessScreen(item, this.widget));
-        
 			} else {
-        
 				this.screens.push(new ModalScreen(item, this.widget));
-        
 			}
 		});
 		this.exit.addEventListener("click", () => {
@@ -666,20 +679,24 @@ class Modal {
 	}
 
 	_showModal() {
+    
     document.body.style.overflow = "hidden";
     this.modal.classList.remove("UMC-widget_class-hidden");
     setTimeout(() => {
       this.content.classList.remove("UMC-widget__modal-body_hidden");
     }, 100);
+    
   }
 
   _hideModal() {
+   
     this.content.classList.add("UMC-widget__modal-body_hidden");
     setTimeout(() => {
       this.modal.classList.add("UMC-widget_class-hidden");
       document.body.style.overflow = "auto";
       this._exitModalCallback();
     }, 100);
+    
 	}
 	
 	_changeScreen(name) {
@@ -695,25 +712,16 @@ class Modal {
   
   _exitModalCallback() {
     switch (this.activeScreen) {
-      case 'accept': {
-        this.widget.calendar._disableTimeElements();
-        break;
-      }
       case 'success': {
-        this.widget.calendar._activeTimeElements();
-        this.widget.calendar.activeTime.remove();
-        this.widget.calendar.activeTime = null;
-        this.widget.calendar._removeFromScreens();
         this._changeScreen('inputs');
         break;
       }
       case 'error': {
-        this.widget.calendar._activeTimeElements();
         this._changeScreen('inputs');
         break;
       }
       default: {
-    
+        return true;
       }
     }
   }
@@ -745,16 +753,16 @@ class FieldArea extends ModalScreen {
   }
 
   _init() {
-    let inputs = document.querySelectorAll(this.widget.dotName + " .UMC-widget__input-wrapper");
-    let openInputBtns = document.querySelectorAll(this.widget.dotName + " .UMC-widget__open-input");
+    let inputs = this.widget.widget.querySelectorAll(".UMC-widget__input-wrapper");
+    let openInputBtns = this.widget.widget.querySelectorAll(".UMC-widget__open-input");
     inputs.forEach((item) => {
       this.fields.push(new Input(item, this.widget));
     });
     
     openInputBtns.forEach((item) => {
       item.addEventListener("click", () => {
-        let input = document.querySelector(
-          this.widget.dotName + ` .UMC-widget__input[data-name="${item.dataset.name}"]`
+        let input = this.widget.widget.querySelector(
+          ` .UMC-widget__input[data-name="${item.dataset.name}"]`
         );
         input.parentNode.classList.remove("UMC-widget_class-hidden");
         item.remove();
@@ -770,16 +778,31 @@ class FieldArea extends ModalScreen {
 class SuccessScreen extends ModalScreen {
 	constructor(item, widget) {
 		super(item, widget);
-		this.node = item.querySelector(this.widget.dotName + ' .UMC-widget__success-text');
+		this.node = item.querySelector(' .UMC-widget__success-text');
+    this.str = 'Вы записались на прием к врачу <span class="UMC-widget__success-highlight">#DOCTOR#<span> на <span class="UMC-widget__success-highlight">#DATE#<span> в <span class="UMC-widget__success-highlight">#TIME#<span>';
 	}
 
+  getResultString(info) {
+    let resultString = this.str;
+    for (let key in info) {
+      resultString = resultString.replace('#' + key + '#', info[key]);
+    }
+    return resultString;
+  }
+
 	setData() {
-		let state = this.widget.state.getField('dateTime');
-		let date = new Date(state);
-		let dateStr = ("0" + date.getDate()).slice(-2) + '.' + ("0" + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear();
-		let timeStr = ("0" + date.getHours()).slice(-2) + ':' + ("0" + date.getMinutes()).slice(-2);
-		let user = this.widget.user.doctor_name;
-		this.node.innerHTML = `Вы записались на прием к врачу <span class="UMC-widget__success-highlight">${user}<span> на <span class="UMC-widget__success-highlight">${dateStr}<span> в <span class="UMC-widget__success-highlight">${timeStr}<span>`;
+		const state = this.widget.state.getField('dateTime');
+		const doctorId = this.widget.state.getField('doctor_id');
+		const date = new Date(state);
+    const user = this.widget.doctors.find(item => item.id === doctorId);
+    
+    const outInfo = {
+      DATE: ("0" + date.getDate()).slice(-2) + '.' + ("0" + (date.getMonth() + 1)).slice(-2) + '.' + date.getFullYear(),
+      TIME: ("0" + date.getHours()).slice(-2) + ':' + ("0" + date.getMinutes()).slice(-2),
+      DOCTOR: user.name
+    }		
+
+		this.node.innerHTML = this.getResultString(outInfo);
 	}
 }
 
@@ -787,7 +810,7 @@ class Input {
   constructor(wrapper, widget) {
     this.wrapper = wrapper;
     this.widget = widget;
-    this.input = wrapper.querySelector(this.widget.dotName + " .UMC-widget__input");
+    this.input = wrapper.querySelector(" .UMC-widget__input");
     
     this.name = this.input.dataset.name;
 		this.error = false;
@@ -894,54 +917,4 @@ class Input {
 	}
 }
 
-const WidgetsInit = async () => {
-  let widgets = document.querySelectorAll('.UMC-widget');
-  let reqArray = [];
-  if (!window.UMCWidget) {
-    window.UMCWidget = {};
-  }
-
-  widgets.forEach(item => {
-    let con = item.querySelector('.UMC-widget__medic-id');
-    let id = con.dataset.medic;
-    if (!id) {
-      id = con.textContent;
-    } 
-    if (!reqArray.includes(id)) {
-      reqArray.push(id);
-    }
-  })
-  
-  try {
-    if (reqArray.length) {
-      let payload = {
-        method: 'schedule',
-        data: reqArray
-      }
-      
-      let data = await fetch(window.API_URL, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      })
- 
-      window.UMCWidget.data = await data.json();
-
-      window.UMCWidget.dataLoaded = true;
-      widgets.forEach(item => {
-        new Widget(item);
-      })
-      
-    } else {
-      throw Error('Не указаны идентификаторы врачей');
-    }    
-  } catch (e) {
-    console.log(e)
-    Widget._sendError(widgets);
-    window.UMCWidget.dataLoaded = false;
-  }
-} 
-
-document.addEventListener("DOMContentLoaded", WidgetsInit);
-
-
-
+window.umcwidget = new UMCWidget(window.UMCWidget);
