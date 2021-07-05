@@ -334,10 +334,10 @@ class UMCWidget {
   }
 
   _formatData() {
-    this.groups = this.data.service_groups
-      .map(item => ({id: item.group_id, name: item.group_name, services: item.services}));
+    this.groups = this.data.specializations
+      .map(item => ({id: item.spec_id, name: item.spec_name, services: item.services}));
     this.doctors = this.data.doctors
-      .map(item => ({id: item.doctor_id, name: item.doctor_name, groups: item.groups, time: item.time, services: item.services}));
+      .map(item => ({id: item.doctor_id, name: item.doctor_name, groups: item.groups, time: item.time, services: item.services || []}));
     this.services = this.data.services
       .map(item => ({id: item.service_id, name: item.service_name, cost: item.service_cost, time: item.service_time}));
     const groups = this.options.groups;
@@ -634,7 +634,7 @@ class ServiceGroupArea extends Block {
     const area = data.widget.querySelector('.UMC-widget__servicegroups-wrapper');
     super(area);
     this.data = data.groups;
-    this.name = 'service_group_id';
+    this.name = 'spec_id';
     this.widget = data;
     this.deps = ['medicArea', 'calendar', 'timeArea'];
     this.next = 'serviceArea';
@@ -662,7 +662,7 @@ class ServiceArea extends Block {
   }
 
   init() {
-    const id = this.widget.state.getField('service_group_id');
+    const id = this.widget.state.getField('spec_id');
     const group = this.widget.groups.find(item => item.id === id);
     this.data = id ? this.widget.services.filter(item => group.services.includes(item.id)) : this.widget.services;
     super.init();
