@@ -1245,6 +1245,7 @@ class Input {
 			this.input.value.length > this.maxValue;
 	}
 }
+
 window.umcwidget = new UMCWidget(options);
 
 }
