@@ -1,10 +1,12 @@
 const UMCWidgetInit = (options) => {
+
 class UMCWidget {
   error = false;
   errorField = false;
 
   constructor(options) {
     this.API_URL = 'https://charite.me/local/firstbit/data.php';
+    // this.API_URL = '../data.json';
     this.options = options;
     this.template = `<section class="UMC-widget">
     <div class="UMC-widget__form" id="UMC-widget__form">
@@ -103,7 +105,7 @@ class UMCWidget {
         </div>
       </div>
       <div class="UMC-widget__time-container UMC-widget__block">
-        <p class="UMC-widget__time-header UMC-widget__section-header">Время записи на: 11 июля</p>
+        <p class="UMC-widget__time-header UMC-widget__section-header">Время записи</p>
         <div class="UMC-widget__time-wrapper">
           <div class="UMC-widget__time shadow-box shadow-box_hidden">
             <p class="UMC-widget__time-item UMC-widget__time-item_free">
@@ -217,7 +219,7 @@ class UMCWidget {
           </div>
           <div class="UMC-widget__error-wrapper UMC-widget_class-hidden UMC-widget__modal-screen" data-name="error">
             <div class="UMC-widget__success-area">
-                <p class="UMC-widget__success-text">Произошла ошибка! Попробуйте записаться еще раз или перезагрузите страницу</p>
+                <p class="UMC-widget__success-text"></p>
             </div>
           </div>
         </div>
@@ -248,14 +250,14 @@ class UMCWidget {
   async _getData() {
     const type = this.options.type || 'doctor';
     const payload = {
-        method: type === 'doctor' || type === 'doctor_group' ? 'schedule' : '',
+        method: type === 'doctor' ? 'schedule' : 'service',
         data: this.options.entities
     };
-    // const data = await fetch(this.API_URL, {
-    //   method: 'POST',
-    //   body: JSON.stringify(payload),
-    // });
-    const data = await fetch('../data.json');
+    const data = await fetch(this.API_URL, {
+      method: 'POST',
+      // method: 'GET',
+      body: JSON.stringify(payload),
+    });
     this.data = await data.json();
   }
 
@@ -337,9 +339,17 @@ class UMCWidget {
     this.groups = this.data.specializations
       .map(item => ({id: item.spec_id, name: item.spec_name, services: item.services}));
     this.doctors = this.data.doctors
-      .map(item => ({id: item.doctor_id, name: item.doctor_name, groups: item.groups, time: item.time, services: item.services || []}));
+      .map(item => {
+        const current = {id: item.doctor_id, name: item.doctor_name, clinic_id: item.cliniс_id, time: item.time, services: item.services || []};
+        if (this.data.doctors.filter(elem => elem.id === item.id).length > 1) {
+          current.haveDouble = true;
+        }
+        return current;
+      });
     this.services = this.data.services
       .map(item => ({id: item.service_id, name: item.service_name, cost: item.service_cost, time: item.service_time}));
+    this.clinics = this.data.clinics
+      .map(item => ({id: item.clinic_id, name: item.clinic_name, address: item.clinic_adress, phone: item.clinic_phone}));
     const groups = this.options.groups;
     if (groups && groups.length) {
       this.groups = this.groups.filter(item => groups.includes(item.id));
@@ -375,7 +385,7 @@ class UMCWidget {
     const codeMessage = {
       data: {
         number: '+' + this.state.getField('number'),
-        code: this.state.getCode(),
+        code: this.state.code,
       },
       method: 'sms',
     }
@@ -452,11 +462,8 @@ class UMCWidget {
     this.checkInputsError();
     if (!this.errorField) {
       this.state.code = this._createCode();
-      this.btnArea._showPreloader(true);
-      // const result = await this._sendCode();
-      const result = {
-        success: true
-      }
+      this.btnArea._showPreloader('sms');
+      const result = await this._sendCode();
       this.btnArea._hidePreloader();
       if (result && result.success) {
 				this.modal.setTitle("Подтвердите номер телефона");
@@ -471,11 +478,8 @@ class UMCWidget {
     this.checkInputsError();
     const condition = this.checkCode();
     if (condition && !this.errorField) {
-      this.btnArea._showPreloader(false);
-      // const result = await this._sendInformation();
-      const result = {
-        success: true
-      }
+      this.btnArea._showPreloader('submit');
+      const result = await this._sendInformation();
       if (result && result.success) {
         this.modal.setTitle("Запись произведена");
         this.btnArea._hidePreloader();
@@ -491,13 +495,44 @@ class UMCWidget {
     }
 	}
 
-  static _sendError(e) {
-    console.log(e);
+  async waitList() {
+    this.checkInputsError();
+    if (!this.errorField) {
+      this.btnArea._showPreloader('wait');
+      const result = await this._sendWaitInformation();
+      if (result && result.success) {
+        this.modal.setTitle("Заявка отправлена");
+        this.btnArea._hidePreloader();
+        this.successScreen.setWaitData();
+        this.modal._clearInputs();
+        this.modal._changeScreen('success');
+        this.state.clearState();
+      } else {
+        this._sendModalError();
+      }
+    } 
+  }
+
+  async _sendWaitInformation() {
+    const state = this.state.getState();	
+    const payload = {data: state, method: 'waitlist'};
+		try {
+			const data = await fetch(this.API_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      return await data.json();
+		} catch {
+			this._sendModalError();
+		}
   }
 
   _sendModalError() {
+    const text = this.widget.querySelector('.UMC-widget__error-wrapper .UMC-widget__success-text');
+    text.textContent = this.options.text.error;
     this.modal.setTitle('Ошибка');
     this.modal._changeScreen('error');
+    this.modal._showModal();
   }
 
   _createCode() {
@@ -526,6 +561,7 @@ class WidgetState {
 
   setField(name, value) {
     this._state[name] = value;
+    return true;
   }
 
   getField(name) {
@@ -539,6 +575,7 @@ class WidgetState {
   clearState() {
     this._state = {};
     this._code = null;
+    return true;
   }
 
   getRequiredFields() {
@@ -609,6 +646,11 @@ class Block {
       listItem.className = ('UMC-widget__list-item');
       listItem.textContent = item.name;
       listItem.dataset.id = item.id;
+      if (item.clinic_id) {
+        listItem.dataset.clinic = item.clinic_id;
+        const clinic = this.widget.clinics.find(elem => elem.id === item.clinic_id);
+        listItem.textContent = item.name + ' в клинике ' + clinic.name;
+      }
       if (item.cost) {
         listItem.dataset.cost = item.cost;
       }
@@ -698,6 +740,11 @@ class MedicArea extends Block {
     const id = this.widget.state.getField('service_id');
     this.data = id ? this.widget.doctors.filter(item => item.services.includes(id)) : this.widget.doctors;
     super.init();
+  }
+
+  clickItem(element) {
+    super.clickItem(element);
+    this.widget.state.setField('clinic_id', element.dataset.clinic);
   }
 }
 
@@ -921,6 +968,7 @@ class BtnArea {
     this.widget = widget;
     this.btn = this.widget.widget.querySelector(" #UMC-widget__btn-sign");
     this.access = this.widget.widget.querySelector(" #UMC-widget__btn-accept");
+    this.wait = this.widget.widget.querySelector(" #UMC-widget__btn-back");
     this._init();
   }
 
@@ -933,6 +981,22 @@ class BtnArea {
     this.access.addEventListener("click", () => {
       this.widget.submit();
     });
+    this.wait.addEventListener("click", () => {
+      this.widget.waitList();
+    });
+  }
+
+  _getBtn(code) {
+    switch (code) {
+      case 'submit':
+        return this.btn;
+      case 'sms':
+        return this.access;
+      case 'wait':
+        return this.wait;
+      default:
+        return null;
+    }
   }
 
   _showPreloader(code) {
@@ -940,13 +1004,9 @@ class BtnArea {
       this.preloader = document.createElement("img");
       this.preloader.src = "https://itprotection.ru/api/load.gif";
       this.preloader.classList.add("UMC-widget__preloader-btn");
-      if (code) {
-        this.btn.innerHTML = "";
-        this.btn.append(this.preloader);
-      } else {
-        this.access.innerHTML = "";
-        this.access.append(this.preloader);
-      }
+      const btn = this._getBtn(code);
+      btn.innerHTML = "";
+      btn.append(this.preloader);
     }
   }
 
@@ -957,6 +1017,7 @@ class BtnArea {
 		}
     this.btn.textContent = "записаться на прием";
     this.access.textContent = "подтвердить номер";
+    this.wait.textContent = "оставить заявку";
   }
 }
 
@@ -1112,11 +1173,10 @@ class SuccessScreen extends ModalScreen {
 	}
 
   getResultString(str = this.str, info) {
-    let resultString = str;
     for (let key in info) {
-      resultString = resultString.replace('#' + key + '#', info[key]);
+      str = str.replace('#' + key + '#', info[key]);
     }
-    return resultString;
+    return str;
   }
 
 	setData() {
@@ -1131,8 +1191,12 @@ class SuccessScreen extends ModalScreen {
       DOCTOR: user.name
     }		
 
-		this.node.innerHTML = this.getResultString(this.widget.options.text, outInfo);
+		this.node.innerHTML = this.getResultString(this.widget.options.text.submit, outInfo);
 	}
+
+  setWaitData() {
+    this.node.innerHTML = this.widget.options.text.waitlist;
+  }
 }
 
 class Input {
@@ -1249,3 +1313,4 @@ class Input {
 window.umcwidget = new UMCWidget(options);
 
 }
+

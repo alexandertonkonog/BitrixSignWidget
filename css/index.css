@@ -101,7 +101,7 @@ html, body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   column-gap: 7px;
-  padding: 12px;
+  padding: 7px;
   row-gap: 10px;
 }
 .shadow-box {
@@ -181,7 +181,7 @@ html, body {
 /*time*/
 
 .UMC-widget__time {
-  padding: 20px 16px;
+  padding: 7px;
   overflow-y: auto;
   display: grid;
   grid-template-columns: 1fr;
@@ -211,7 +211,7 @@ html, body {
 
 .UMC-widget__list {
   width: 100%;
-  padding: 12px;
+  padding: 7px;
   overflow: auto;
 }
 .UMC-widget__list-header {
@@ -231,6 +231,7 @@ html, body {
   transition: all ease 0.1s;
   margin-bottom: 10px;
   user-select: none;
+  line-height: 18px;
   border: 1px solid var(--main-element-border_simple);
 }
 .UMC-widget__list-item:hover {
@@ -530,8 +531,6 @@ html, body {
 }
 .shadow-box_hidden, .shadow-box_loading {
   overflow: hidden;
-  border: 2px solid #00000050;
-  /* opacity: 0.5; */
 }
 .shadow-box_hidden::after {
   content: '';
