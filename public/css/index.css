@@ -17,6 +17,8 @@ html, body {
   --main-element-color_simple: #555;
   --main-element-border_simple: #ccc;
   --main-text: black;
+  --icon-bottom: 170px;
+  --icon-right: 73px;
 }
 .UMC-widget {
   box-sizing: border-box;
@@ -559,8 +561,8 @@ html, body {
 
 .UMC-widget__toggler {
   position: fixed;
-  right: 30px;
-  bottom: 30px;
+  right: var(--icon-right);
+  bottom: var(--icon-bottom);
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -684,6 +686,12 @@ html, body {
   /* time */
   .UMC-widget__time {
     grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* toggler */
+  .UMC-widget__toggler {
+    right: calc(var(--icon-right) - 50px);
+    bottom: calc(var(--icon-top) - 80px);
   }
 }
 @media screen and (max-width: 450px) {

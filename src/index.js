@@ -1,12 +1,12 @@
-const UMCWidgetInit = (options) => {
+import IMask from 'imask';
 
 class UMCWidget {
   error = false;
   errorField = false;
 
   constructor(options) {
-    this.API_URL = 'https://charite.me/local/firstbit/data.php';
-    // this.API_URL = '../data.json';
+    // this.API_URL = 'http://test.loc';
+    this.API_URL = 'https://gp2dzm-platno.com/1bit/index.php';
     this.options = options;
     this.template = `<section class="UMC-widget">
     <div class="UMC-widget__form" id="UMC-widget__form">
@@ -178,10 +178,6 @@ class UMCWidget {
                 />
               </div>
             </div>
-            <p class="UMC-widget__open-input" data-name="address">Адрес</p>
-            <p class="UMC-widget__open-input" data-name="comment">
-              Комментарий
-            </p>
             <div class="UMC-widget__button-area">
               <button class="UMC-widget__button" id="UMC-widget__btn-sign">
                 Записаться
@@ -231,7 +227,6 @@ class UMCWidget {
 
   async _init() {
     try {
-      await this._getSettings();
       this._setTemplate();
       this._setSettings();
       await this._getData();
@@ -242,16 +237,11 @@ class UMCWidget {
     }
   }
 
-  async _getSettings() {
-    const settingsJson = await fetch('../settings.json');
-    this.settings = await settingsJson.json();
-  }
-
   async _getData() {
     const type = this.options.type || 'doctor';
     const payload = {
-        method: type === 'doctor' ? 'schedule' : 'service',
-        data: this.options.entities
+        method: type === 'doctor' ? 'schedule' : 'services',
+        data: this.options.entities || []
     };
     const data = await fetch(this.API_URL, {
       method: 'POST',
@@ -262,7 +252,6 @@ class UMCWidget {
   }
 
   _setTemplate() {
-    const settings = this.settings.settings;
     if (this.options.root) {
       const root = document.querySelector('#' + this.options.root);
       if (root) {
@@ -289,7 +278,7 @@ class UMCWidget {
       this.globalModalExit = this.root.querySelector('.UMC-widget__modal-body .UMC-widget__modal-exit');
       const content = this.globalModal.querySelector('.UMC-widget__modal-content');
       content.innerHTML = this.template;
-      const template = `<img src="/images/pencil.svg" class="UMC-widget__toggler-icon" alt="Запись на прием">`;
+      const template = `<img src="/1bit//images/pencil.svg" class="UMC-widget__toggler-icon" alt="Запись на прием">`;
       this.toggler = document.createElement('div');
       this.toggler.className = 'UMC-widget__toggler';
       this.toggler.innerHTML = template;
@@ -298,6 +287,7 @@ class UMCWidget {
       this.form = this.root.querySelector('.UMC-widget__form');
       this.toggler.addEventListener('click', () => {
         this.globalModal.classList.remove('UMC-widget_class-hidden');
+        this.modal._hideModal();
       })
       this.globalModalExit.addEventListener('click', () => {
         this.globalModal.classList.add('UMC-widget_class-hidden');
@@ -329,20 +319,21 @@ class UMCWidget {
   }
 
   _setSettings() {
-    const styles = this.settings.style;
+    const styles = this.options.style;
     for (let key in styles) {
       document.documentElement.style.setProperty("--" + key, styles[key]);
     }
   }
 
   _formatData() {
+    let count = 0;
     this.groups = this.data.specializations
       .map(item => ({id: item.spec_id, name: item.spec_name, services: item.services}));
     this.doctors = this.data.doctors
       .map(item => {
         const current = {id: item.doctor_id, name: item.doctor_name, clinic_id: item.cliniс_id, time: item.time, services: item.services || []};
-        if (this.data.doctors.filter(elem => elem.id === item.id).length > 1) {
-          current.haveDouble = true;
+        if (!item.time || !item.time.length) {
+          count++;
         }
         return current;
       });
@@ -353,13 +344,15 @@ class UMCWidget {
     const groups = this.options.groups;
     if (groups && groups.length) {
       this.groups = this.groups.filter(item => groups.includes(item.id));
-    } 
+    }
+    if (count == this.doctors.length) {
+      this.empty = true;
+    }
   }
 
   _widgetInit() {
     this._initEvents();
     this.state = new WidgetState();
-    this.state.setField('site_id', window.location.origin);
     this.serviceGroupArea = new ServiceGroupArea(this);
     this.serviceArea = new ServiceArea(this);
     this.medicArea = new MedicArea(this);
@@ -372,6 +365,10 @@ class UMCWidget {
 		this.btnArea = new BtnArea(this);
 		this.fieldArea = this.modal.screens.find(item => item.name === 'inputs');
 		this.successScreen = this.modal.screens.find(item => item.name === 'success');
+
+    if (this.empty) {
+      this._sendModalError(this.options.text.withoutDoctors);
+    }
   }
 
   _initEvents() {
@@ -401,6 +398,7 @@ class UMCWidget {
   }
 
   async _sendInformation() {
+    this.state.setField('site_id', window.location.origin);
     const state = this.state.getState();	
     const payload = {data: state, method: 'appointment'};
 		try {
@@ -408,7 +406,6 @@ class UMCWidget {
         method: 'POST',
         body: JSON.stringify(payload)
       });
-      await this.refreshInformation();
       return await data.json();
 		} catch {
 			this._sendModalError();
@@ -416,21 +413,22 @@ class UMCWidget {
 	}
 
   async refreshInformation() {
+    this.serviceGroupArea.init();
+    const type = this.options.type || 'doctor';
     const payload = {
-      method: 'schedule',
-      data: this.options.doctors
-    }
+        method: type === 'doctor' ? 'schedule' : 'services',
+        data: this.options.entities || []
+    };
     
     let data = await fetch(this.API_URL, {
       method: 'POST',
       body: JSON.stringify(payload),
     })
     data = await data.json();
-
-    this.user = data[0];
-    this.calendar.user = this.user;
-    this.calendar.init();
-    this.timeArea.init();
+    this.data = data;
+    this._formatData();
+    this.calendar.medics = this.doctors;
+    this.serviceGroupArea.init();
   }
 
   checkInputsError() {
@@ -480,19 +478,19 @@ class UMCWidget {
     if (condition && !this.errorField) {
       this.btnArea._showPreloader('submit');
       const result = await this._sendInformation();
-      if (result && result.success) {
+      this.btnArea._hidePreloader();
+      if (result && result.success && !result.error) {
         this.modal.setTitle("Запись произведена");
         this.btnArea._hidePreloader();
         this.successScreen.setData();
         this.modal._clearInputs();
         this.modal._changeScreen('success');
         this.state.clearState();
+        await this.refreshInformation();
       } else {
         this._sendModalError();
       }
-    } else {
-      input.sendCodeError();
-    }
+    } 
 	}
 
   async waitList() {
@@ -500,7 +498,8 @@ class UMCWidget {
     if (!this.errorField) {
       this.btnArea._showPreloader('wait');
       const result = await this._sendWaitInformation();
-      if (result && result.success) {
+      this.btnArea._hidePreloader();
+      if (result && result.success && !result.error) {
         this.modal.setTitle("Заявка отправлена");
         this.btnArea._hidePreloader();
         this.successScreen.setWaitData();
@@ -527,9 +526,9 @@ class UMCWidget {
 		}
   }
 
-  _sendModalError() {
+  _sendModalError(str = null) {
     const text = this.widget.querySelector('.UMC-widget__error-wrapper .UMC-widget__success-text');
-    text.textContent = this.options.text.error;
+    text.textContent = str || this.options.text.error;
     this.modal.setTitle('Ошибка');
     this.modal._changeScreen('error');
     this.modal._showModal();
@@ -778,6 +777,7 @@ class Calendar extends Block {
 
   init() {
     this.show();
+    this._init();
   }
 
   _changeTimeFormat() {
@@ -794,7 +794,7 @@ class Calendar extends Block {
     if (!this.user) return false;
     this.user.time.forEach((item) => {
       const start = new Date(item.time_start);
-      const end = new Date(item.time_end);      
+      const end = new Date(item.time_end);
       while (start < end) {
         let firstDate = new Date(start.getTime());
         firstDate.setMinutes(firstDate.getMinutes() + this.duration);
@@ -826,7 +826,7 @@ class Calendar extends Block {
         fullDate: now,
         free: now >= this.date,
       };
-      if (this.timeArray.length && day.free) {
+      if (day.free) {
         const elem = this.timeArray.some(item => {
           const date = new Date(item);
           return date.getDate() === day.day && date.getMonth() === day.month;
@@ -928,6 +928,7 @@ class TimeArea extends Block {
       const date = (new Date(item)).getDate();
       return date === this.day.day;
     });
+    
     this.setText(this.day);
     this._render();
     this.show();
@@ -937,9 +938,24 @@ class TimeArea extends Block {
     this.textItem.textContent = `Время записи на ${day.day} ${this.months[day.month]}:`;
   }
 
+  toISOString(date) {
+    const pad = (number) => {
+      if (number < 10) {
+        return '0' + number;
+      }
+      return number;
+    }
+    return date.getFullYear() +
+        '-' + pad(date.getMonth() + 1) +
+        '-' + pad(date.getDate()) +
+        'T' + pad(date.getHours()) +
+        ':' + pad(date.getMinutes()) +
+        ':' + pad(date.getSeconds());
+  } 
+
   clickTimeElement(item) {
     const date = new Date(item);
-    this.widget.state.setField('dateTime', date.toISOString());
+    this.widget.state.setField('dateTime', this.toISOString(date));
     this.widget.modal._showModal();
   }
 
@@ -974,16 +990,24 @@ class BtnArea {
 
   _init() {
     this.btn.addEventListener("click", () => {
-      const sms = this.widget.options.sms;
-      if (sms) this.widget.checkNumber();
-      else this.widget.submit();
+      if (!this.preloader) {
+        const sms = this.widget.options.sms;
+        if (sms) this.widget.checkNumber();
+        else this.widget.submit();
+      }
     });
     this.access.addEventListener("click", () => {
-      this.widget.submit();
+      if (!this.preloader) {
+        this.widget.submit();
+      }
     });
-    this.wait.addEventListener("click", () => {
-      this.widget.waitList();
-    });
+    if (this.widget.options.backCall) {
+      this.wait.addEventListener("click", () => {
+        if (!this.preloader) {
+          this.widget.waitList();
+        }
+      });
+    }
   }
 
   _getBtn(code) {
@@ -1017,7 +1041,10 @@ class BtnArea {
 		}
     this.btn.textContent = "записаться на прием";
     this.access.textContent = "подтвердить номер";
-    this.wait.textContent = "оставить заявку";
+    if (this.wait) {
+      this.wait.textContent = "оставить заявку";
+    }
+    
   }
 }
 
@@ -1079,6 +1106,7 @@ class Modal {
       this.widget.form.classList.remove('UMC-widget_class-hidden');
       this.modal.classList.add('UMC-widget_class-hidden');
       this.widget.widget.classList.remove('UMC-widget_modal-open');
+      this._exitModalCallback();
     } else {
       this.content.classList.add("UMC-widget__modal-body_hidden");
       setTimeout(() => {
@@ -1101,19 +1129,7 @@ class Modal {
   }
   
   _exitModalCallback() {
-    switch (this.activeScreen) {
-      case 'success': {
-        this._changeScreen('inputs');
-        break;
-      }
-      case 'error': {
-        this._changeScreen('inputs');
-        break;
-      }
-      default: {
-        return true;
-      }
-    }
+    this._changeScreen('inputs');
   }
 
 	setTitle(text) {
@@ -1310,7 +1326,4 @@ class Input {
 	}
 }
 
-window.umcwidget = new UMCWidget(options);
-
-}
-
+window.UMCWidget = UMCWidget;

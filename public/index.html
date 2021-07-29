@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/index.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <!-- <a href="">reload</a> -->
+    <div id="container"></div>
+    <!-- <script src="https://unpkg.com/imask@6.0.7/dist/imask.js"></script> -->
+    <script src="UMC-widget.js"></script>
+    <!-- <script src="../src/index.js"></script> -->
+    <script>
+      const options = {
+        entities: [],  // идентификаторы врачей или услуг (смешивать нельзя), заполняются всегда, если массив пустой, будут высланы все (не рекомендуется)
+        groups: false, // идентификаторы групп услуг или специализаций
+        type: 'service', // doctor || service // чьи идентификаторы закреплены в entities
+        root: '', // идентификатор контейнера для виджета
+        backCall: false, // наличие кнопки для обратного звонка
+        sms: false, // наличие подтверждения по смс
+        text: {
+          submit: 'Вы записались на прием к врачу <span class="UMC-widget__success-highlight">#DOCTOR#<span> на <span class="UMC-widget__success-highlight">#DATE#<span> в <span class="UMC-widget__success-highlight">#TIME#<span>',
+          waitlist: 'Вы оставили заявку на обратный звонокadioasdoashdioash',
+          error: 'Произошла ошибка! Попробуйте еще раз, перезагрузите страницу или зайдите позднее',
+          withoutDoctors: 'В данный момент у врачей нет свободного времени для записи. Попробуйте зайти позднее'
+        },
+        style: {
+          "main-element-bg": "#00A3C8",
+          "main-element-color":"#ffffff",
+          "main-element-border":"#00A3C8",
+          "main-element-bg_hover":"#007995",
+          "main-element-color_hover":"#ffffff",
+          "main-element-border_hover":"#007995",
+          "main-element-bg_simple":"#ffffff",
+          "main-element-color_simple":"#555",
+          "main-element-border_simple":"#ccc",
+          "main-text": "black"
+        }
+      }
+      const UMCClass = window.UMCWidget;
+      window.umcwidget = new UMCClass(options);
+    </script>
+  </body>
+</html>
+ 
