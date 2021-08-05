@@ -41,20 +41,22 @@ src="https://www.facebook.com/tr?id=183847430329361&ev=PageView&noscript=1"
 <script src="/js/jquery-2.2.4.min.js"></script>
 <script src="/js/matchheight.js?01" type="text/javascript"></script>
 
-</script><script src="/js/jquery-ui.min.js"></script>
+<script src="/js/jquery-ui.min.js"></script>
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/jquery-plugin-collection.js"></script>
 
 <script src="/js/revolution-slider/js/jquery.themepunch.tools.min.js"></script>
 <script src="/js/revolution-slider/js/jquery.themepunch.revolution.min.js"></script>
-
+<link rel="stylesheet" href="/1bit/css/index.css" />
 
 <style type="text/css">
-@media (max-width: 900px)
-.menuzord-responsive .menuzord-brand {
-    margin: 8px 0px 10px 10px !important;
-    font-size: 20px;
-}
+  @media (max-width: 900px) {
+    .menuzord-responsive .menuzord-brand {
+        margin: 8px 0px 10px 10px !important;
+        font-size: 20px;
+    }
+  }
+
 </style>
 <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -446,6 +448,40 @@ var lazyLoadInstance = new LazyLoad({
 <script src="/js/bvi/bvi-init.js"></script>
 <script src="/js/bvi/bvi.min.js"></script>
 
+<!-- 1bit widget -->
+<script src="/1bit/UMC-widget.js"></script>
+<script>
+  const UMCOptions = {
+    entities: [],  // идентификаторы врачей или услуг (смешивать нельзя), заполняются всегда, если массив пустой, будут высланы все (не рекомендуется)
+    groups: false, // идентификаторы групп услуг или специализаций
+    type: 'doctor', // doctor || service // чьи идентификаторы закреплены в entities
+    root: '', // идентификатор контейнера для виджета
+    backCall: false, // наличие кнопки для обратного звонка
+    sms: false, // наличие подтверждения по смс
+    btnClass: 'Bitpopup',
+    text: {
+      submit: 'Вы записались на прием к врачу <span class="UMC-widget__success-highlight">#DOCTOR#<span> на <span class="UMC-widget__success-highlight">#DATE#<span> в <span class="UMC-widget__success-highlight">#TIME#<span>',
+      waitlist: 'Вы оставили заявку на обратный звонок',
+      error: 'Произошла ошибка! Попробуйте еще раз, перезагрузите страницу или зайдите позднее',
+      withoutDoctors: 'В данный момент у врачей нет свободного времени для записи, попробуйте зайти позднее'
+    },
+    style: {
+      "main-element-bg": "#00A3C8",
+      "main-element-color":"#ffffff",
+      "main-element-border":"#00A3C8",
+      "main-element-bg_hover":"#007995",
+      "main-element-color_hover":"#ffffff",
+      "main-element-border_hover":"#007995",
+      "main-element-bg_simple":"#ffffff",
+      "main-element-color_simple":"#555",
+      "main-element-border_simple":"#ccc",
+      "main-text": "black"
+    }
+  }
+  const UMCClass = window.UMCWidget;
+  window.umcwidget = new UMCClass(UMCOptions);
+</script>
+<!-- 1bit widget -->
 
 </body>
 </html>

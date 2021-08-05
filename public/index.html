@@ -10,6 +10,7 @@
   <body>
     <!-- <a href="">reload</a> -->
     <div id="container"></div>
+    <button class="Bitpopup">click</button>
     <!-- <script src="https://unpkg.com/imask@6.0.7/dist/imask.js"></script> -->
     <script src="UMC-widget.js"></script>
     <!-- <script src="../src/index.js"></script> -->
@@ -19,6 +20,8 @@
         groups: false, // идентификаторы групп услуг или специализаций
         type: 'service', // doctor || service // чьи идентификаторы закреплены в entities
         root: '', // идентификатор контейнера для виджета
+        showBtn: true, //показывать или нет стандартную кнопку, по умолчанию показывается
+        btnClass: 'Bitpopup', // класс контейнера для своей кнопки
         backCall: false, // наличие кнопки для обратного звонка
         sms: false, // наличие подтверждения по смс
         text: {
@@ -43,6 +46,7 @@
       const UMCClass = window.UMCWidget;
       window.umcwidget = new UMCClass(options);
     </script>
+    
   </body>
 </html>
  

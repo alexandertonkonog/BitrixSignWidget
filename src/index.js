@@ -278,17 +278,35 @@ class UMCWidget {
       this.globalModalExit = this.root.querySelector('.UMC-widget__modal-body .UMC-widget__modal-exit');
       const content = this.globalModal.querySelector('.UMC-widget__modal-content');
       content.innerHTML = this.template;
-      const template = `<img src="/1bit//images/pencil.svg" class="UMC-widget__toggler-icon" alt="Запись на прием">`;
-      this.toggler = document.createElement('div');
-      this.toggler.className = 'UMC-widget__toggler';
-      this.toggler.innerHTML = template;
-      this.root.append(this.toggler);
+      if (this.options.showBtn !== false) {
+        const template = `<img src="/1bit//images/pencil.svg" class="UMC-widget__toggler-icon" alt="Запись на прием">`;
+        this.toggler = document.createElement('div');
+        this.toggler.className = 'UMC-widget__toggler';
+        this.toggler.innerHTML = template;
+        this.root.append(this.toggler);
+        this.toggler.addEventListener('click', () => {
+          this.globalModal.classList.remove('UMC-widget_class-hidden');
+          this.modal._hideModal();
+        })
+      } 
+
+      if (this.options.btnClass) {
+        const selector = this.options.btnClass || 'Bitpopup';
+        
+        const toggler = document.querySelector('.' + selector);
+        if (toggler) {
+          toggler.addEventListener('click', () => {
+            this.globalModal.classList.remove('UMC-widget_class-hidden');
+            this.modal._hideModal();
+          })
+        } else {
+          throw new Error('Нет элемента с таким классом')
+        }
+      }
+      
       this.widget = this.root.querySelector('.UMC-widget');
       this.form = this.root.querySelector('.UMC-widget__form');
-      this.toggler.addEventListener('click', () => {
-        this.globalModal.classList.remove('UMC-widget_class-hidden');
-        this.modal._hideModal();
-      })
+      
       this.globalModalExit.addEventListener('click', () => {
         this.globalModal.classList.add('UMC-widget_class-hidden');
       })
