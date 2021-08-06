@@ -229,22 +229,22 @@
   cursor: pointer;
 }
 
-/*UMC-widget__service*/
+/*UMC-widget__list*/
 
-.UMC-widget__service {
+.UMC-widget__list {
   width: 100%;
   padding: 12px;
   overflow: auto;
 }
-.UMC-widget__service-header {
+.UMC-widget__list-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-.UMC-widget__service-header-price {
+.UMC-widget__list-header-price {
   font-weight: bold;
 }
-.UMC-widget__service-item {
+.UMC-widget__list-item {
   padding: 5px 8px;
   font-size: 14px;
   background-color: #28BAC0;
@@ -255,13 +255,13 @@
   margin-bottom: 10px;
   user-select: none;
 }
-.UMC-widget__service-item:hover {
+.UMC-widget__list-item:hover {
   background-color: #007E8A;
 }
-.UMC-widget__service-item_selected {
+.UMC-widget__list-item_selected {
   background-color: #005C65;
 }
-.UMC-widget__service-item_selected:hover {
+.UMC-widget__list-item_selected:hover {
   background-color: #005C65;
 }
 
