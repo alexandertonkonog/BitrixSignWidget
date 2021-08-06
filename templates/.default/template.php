@@ -16,29 +16,29 @@ use Bitrix\Main\Page\Asset;
 <section class="UMC-widget">
 	<p class="UMC-widget__date">Сегодня 11 июля</p>
 	<div class="UMC-widget__form" id="UMC-widget__form">
-	<div class="UMC-widget__service-wrapper UMC-widget__servicegroups-wrapper UMC-widget__block">
-		<div class="UMC-widget__service-header UMC-widget__section-header">Группа услуг:</div>
-		<div class="UMC-widget__service shadow-box shadow-box_loading">
-		<p class="UMC-widget__service-item">Группа услуг 1</p>
-		<p class="UMC-widget__service-item UMC-widget__service-item_selected">Группа услуг 2</p>
-		<p class="UMC-widget__service-item">Группа услуг 3</p>
-		<p class="UMC-widget__service-item">Группа услуг 4</p>
-		<p class="UMC-widget__service-item">Группа услуг 5</p>
-		<p class="UMC-widget__service-item">Группа услуг 6</p>
+	<div class="UMC-widget__list-wrapper UMC-widget__servicegroups-wrapper UMC-widget__block">
+		<div class="UMC-widget__list-header UMC-widget__section-header">Группа услуг:</div>
+		<div class="UMC-widget__list shadow-box shadow-box_loading">
+		<p class="UMC-widget__list-item">Группа услуг 1</p>
+		<p class="UMC-widget__list-item UMC-widget__list-item_selected">Группа услуг 2</p>
+		<p class="UMC-widget__list-item">Группа услуг 3</p>
+		<p class="UMC-widget__list-item">Группа услуг 4</p>
+		<p class="UMC-widget__list-item">Группа услуг 5</p>
+		<p class="UMC-widget__list-item">Группа услуг 6</p>
 		</div>
 	</div>
-	<div class="UMC-widget__service-wrapper UMC-widget__services-wrapper UMC-widget__block">
-		<div class="UMC-widget__service-header UMC-widget__section-header">
+	<div class="UMC-widget__list-wrapper UMC-widget__services-wrapper UMC-widget__block">
+		<div class="UMC-widget__list-header UMC-widget__section-header">
 		<p>Услуга:</p>
-		<p class="UMC-widget__service-header-price"></p>
+		<p class="UMC-widget__list-header-price"></p>
 		</div>
-		<div class="UMC-widget__service shadow-box shadow-box_hidden">
-		<p class="UMC-widget__service-item">Услуга 1</p>
-		<p class="UMC-widget__service-item">Услуга 2</p>
-		<p class="UMC-widget__service-item UMC-widget__service-item_selected">Услуга 3</p>
-		<p class="UMC-widget__service-item">Услуга 4</p>
-		<p class="UMC-widget__service-item">Услуга 5</p>
-		<p class="UMC-widget__service-item">Услуга 6</p>
+		<div class="UMC-widget__list shadow-box shadow-box_hidden">
+		<p class="UMC-widget__list-item">Услуга 1</p>
+		<p class="UMC-widget__list-item">Услуга 2</p>
+		<p class="UMC-widget__list-item UMC-widget__list-item_selected">Услуга 3</p>
+		<p class="UMC-widget__list-item">Услуга 4</p>
+		<p class="UMC-widget__list-item">Услуга 5</p>
+		<p class="UMC-widget__list-item">Услуга 6</p>
 		</div>
 	</div>
 	<div class="UMC-widget__calendar-wrapper UMC-widget__block">
@@ -204,7 +204,9 @@ use Bitrix\Main\Page\Asset;
 	<div class="UMC-widget__medic-id UMC-widget_class-hidden" data-medic="<?=$arResult["ID"]?>"></div>
 </section>
 <script>
+	window.UMCWidget = {};
 	// window.API_URL = "<?=$this->GetFolder();?>/ajax.php"
 	window.UMCWidget.API_URL = "<?=$this->GetFolder();?>/data.json";
 	window.UMCWidget.id = "<?=$arResult["ID"]?>";
+	window.umcwidget = new UMCWidget(window.UMCWidget);
 </script>

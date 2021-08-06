@@ -5,6 +5,7 @@ class UMCWidget {
   constructor(options) {
     this.options = options;
     this.API_URL = options.API_URL;
+    this.widget = document.querySelector('.UMC-widget');
     this._init();
   }
 
@@ -916,4 +917,3 @@ class Input {
 	}
 }
 
-window.umcwidget = new UMCWidget(window.UMCWidget);
