@@ -1,13 +1,16 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap");
 @font-face {
 	font-family: 'Gotham Pro';
-	src: 	url('./fonts/GothamPro-Bold.woff') format('woff');
+	src: 	url('https://crm.charite.me/local/1bit/fonts/GothamPro-Bold.woff') format('woff');
 	font-weight: bold;
 }
 @font-face {
 	font-family: 'Gotham Pro';
-	src: url('./fonts/GothamPro.woff') format('woff');
+	src: url('https://crm.charite.me/local/1bit/fonts/GothamPro.woff') format('woff');
 	font-weight: normal;
+}
+body, html {
+  scroll-behavior: smooth;
 }
 
 .UMC-widget {
@@ -17,7 +20,7 @@
 }
 .UMC-widget__form {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr;
+  grid-template-columns: 2fr 2fr 3fr 2fr;
   column-gap: 20px;
 }
 
@@ -94,7 +97,7 @@
   border: 1px solid #005C65;
   box-shadow: 0px 4px 4px #00000025;
   border-radius: 6px;
-  height: 226px;
+  height: 300px;
   position: relative;
 }
 
@@ -129,12 +132,12 @@
 .UMC-widget__calendar-item:hover {
   background-color: #007E8A;
 }
-.UMC-widget__calendar-item_red {
+.UMC-widget__calendar-item_busy {
   background-color: #DF373D;
   user-select: none;
   pointer-events: none;
 }
-.UMC-widget__calendar-item_red:hover {
+.UMC-widget__calendar-item_busy:hover {
   background-color: #DF373D;
 }
 .UMC-widget__calendar-item_selected {
@@ -157,7 +160,7 @@
   height: 30px;
   border-radius: 50%;
   background-color: #C8C8C8;
-  background-image: url(./images/arrow.png);
+  background-image: url(https://crm.charite.me/local/1bit/images/arrow.png);
   background-repeat: no-repeat;
   background-size: 12px 12px;
   background-position: center;
@@ -176,17 +179,27 @@
 }
 
 /*time*/
-
+.UMC-widget__time-header {
+  white-space: nowrap;
+}
 .UMC-widget__time {
   padding: 20px 16px;
   overflow-y: auto;
 }
 .UMC-widget__time-item {
-  margin-bottom: 18px;
+  margin-bottom: 5px;
   color: black;
   display: grid;
+  align-items: end;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #fff;
   grid-template-columns: 1fr 2fr 1fr 1fr;
   justify-content: center;
+}
+.UMC-widget__time-item:hover {
+  background-color: rgba(176, 182, 178, 0.5);
 }
 .UMC-widget__time-item > * {
   justify-self: center;
@@ -196,7 +209,7 @@
 }
 .UMC-widget__time-space {
   border-bottom: 1px solid #D9D9D9;
-  width: 90px;
+  min-width: 90px;
 }
 .UMC-widget__time-item:last-child {
   margin-bottom: 0;
@@ -204,29 +217,19 @@
 .UMC-widget__time-sign {
   display: flex;
   align-items: center;
+  justify-self: end;
+  justify-content: center;
   margin-left: 10px;
-  font-size: 13px;
-}
-.UMC-widget__time-sign-icon {
+  color: white;
+  font-size: 16px;
+  background: #28BAC0;
+  border-radius: 50%;
   width: 20px;
   height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  background: #DF373D;
-  border-radius: 50%;
-  color: white;
-  margin-right: 10px;
-}
-.UMC-widget__time-item_free .UMC-widget__time-sign-icon {
-  background: #28BAC0;
-}
-.UMC-widget__time-item_free .UMC-widget__time-sign-icon:hover {
-  background: #007E8A;
-}
-.UMC-widget__time-item_free .UMC-widget__time-sign {
   cursor: pointer;
+}
+.UMC-widget__time-sign:hover {
+  background: #007E8A;
 }
 
 /*UMC-widget__list*/
@@ -245,7 +248,7 @@
   font-weight: bold;
 }
 .UMC-widget__list-item {
-  padding: 5px 8px;
+  padding: 8px;
   font-size: 14px;
   background-color: #28BAC0;
   border-radius: 4px;
@@ -540,7 +543,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  background-image: url(./images/load.gif);
+  background-image: url(https://crm.charite.me/local/1bit/images/load.gif);
   background-repeat: no-repeat;
   background-position: center;
   background-size: 40px 40px;

@@ -4,7 +4,8 @@ class UMCWidget {
 
   constructor(options) {
     this.options = options;
-    this.API_URL = options.API_URL;
+    this.options.id = document.querySelector('.UMC-widget__medic-id').dataset.medic;
+    this.API_URL = 'https://crm.charite.me/local/1bit/ajax.php';
     this.widget = document.querySelector('.UMC-widget');
     this._init();
   }
@@ -25,15 +26,15 @@ class UMCWidget {
         data: [this.options.id]
     };
     const data = await fetch(this.API_URL, {
-      // method: 'POST',
-      // body: JSON.stringify(payload),
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
     this.data = await data.json();
   }
 
   _formatData() {
-    this.groups = this.data.service_groups
-      .map(item => ({id: item.group_id, name: item.group_name, services: item.services}));
+    this.groups = this.data.specializations
+      .map(item => ({id: item.spec_id, name: item.spec_name, services: item.services}));
     this.doctors = this.data.doctors
       .map(item => ({id: item.doctor_id, name: item.doctor_name, groups: item.groups, time: item.time, services: item.services}));
     this.services = this.data.services
@@ -69,7 +70,7 @@ class UMCWidget {
     const codeMessage = {
       data: {
         number: '+' + this.state.getField('number'),
-        code: this.state.getCode(),
+        code: this.state.code,
       },
       method: 'sms',
     }
@@ -144,10 +145,10 @@ class UMCWidget {
     if (!this.errorField) {
       this.state.code = this._createCode();
       this.btnArea._showPreloader(true);
-      // const result = await this._sendCode();
-      const result = {
-        success: true
-      }
+      const result = await this._sendCode();
+      // const result = {
+      //   success: true
+      // }
       this.btnArea._hidePreloader();
       if (result && result.success) {
 				this.modal.setTitle("Подтвердите номер телефона");
@@ -163,10 +164,10 @@ class UMCWidget {
     const condition = this.checkCode();
     if (condition && !this.errorField) {
       this.btnArea._showPreloader(false);
-      // const result = await this._sendInformation();
-      const result = {
-        success: true
-      }
+      const result = await this._sendInformation();
+      // const result = {
+      //   success: true
+      // }
       if (result && result.success) {
         this.modal.setTitle("Запись произведена");
         this.btnArea._hidePreloader();
@@ -342,8 +343,8 @@ class ServiceArea extends Block {
     this.widget = data;
     this.data = data.services;
     this.name = 'service_id';
-    this.next = 'medicArea';
-    this.deps = ['medicArea', 'calendar', 'timeArea'];
+    this.next = 'calendar';
+    this.deps = ['calendar', 'timeArea'];
     this._price = area.querySelector('.UMC-widget__list-header-price');
   }
 
@@ -589,7 +590,11 @@ class TimeArea extends Block {
       dateTime.setMinutes(dateTime.getMinutes() + this.duration);
       const end = ("0" + dateTime.getHours()).slice(-2) + ":" + ("0" + dateTime.getMinutes()).slice(-2);
       const timeElement = document.createElement('p');
-      timeElement.textContent = `${start}-${end}`;
+      timeElement.innerHTML = `
+        <span class="UMC-widget__time-date">${start}</span>
+        <span class="UMC-widget__time-space"></span>
+        <span class="UMC-widget__time-date">${end}</span>
+        <span class="UMC-widget__time-sign">+</span>`;
 
       if (this.day.free) {
         timeElement.className = 'UMC-widget__time-item UMC-widget__time-item_free';
@@ -713,7 +718,7 @@ class Modal {
   _exitModalCallback() {
     switch (this.activeScreen) {
       case 'success': {
-        this._changeScreen('inputs');
+        window.location.href = window.location.href;
         break;
       }
       case 'error': {

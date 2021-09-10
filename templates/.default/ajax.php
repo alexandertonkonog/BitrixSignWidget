@@ -1,5 +1,9 @@
 <?
-    error_reporting(E_ERROR);
+    // error_reporting(E_ERROR);
+
+    header("Access-Control-Allow-Origin: *");
+
+    
 
     function sendMessage($data, $url) {
         $payload = json_encode($data);
@@ -7,11 +11,10 @@
         curl_setopt( $ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt( $ch, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',
-            "Authorization: Basic " . base64_encode("Дмитрий:AS21208"),
+            // "Authorization: Basic " . base64_encode("Дмитрий:AS21208"),
         ));
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_USERPWD, "Дмитрий:AS21208");
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
