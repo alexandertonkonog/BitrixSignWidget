@@ -3,6 +3,15 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
     die();
 }
+
+use Bitrix\Main\Loader;
+
+if (Loader::includeModule('landing'))
+{
+   \Bitrix\Landing\Block::clearRepositoryCache();
+}
+
+
 $arResult = [];
 $arResult["DAYS"] = [];
 
@@ -44,7 +53,7 @@ while(count($arResult["TIME"]) < 6) {
 ?>
 
 <section class="UMC-widget">
-	<p class="UMC-widget__date">Сегодня 11 июля</p>
+	<p class="UMC-widget__date">Сегодня <?=strtolower(FormatDate("d F", strtotime("now"))) ?></p>
 	<div class="UMC-widget__form" id="UMC-widget__form">
 	<div class="UMC-widget__list-wrapper UMC-widget__servicegroups-wrapper UMC-widget__block">
 		<div class="UMC-widget__list-header UMC-widget__section-header">Группа услуг:</div>
@@ -94,7 +103,7 @@ while(count($arResult["TIME"]) < 6) {
 		</div>
 		<div class="UMC-widget__calendar-des">
 		<div class="UMC-widget__calendar-des-item">
-			<p class="UMC-widget__calendar-item UMC-widget__calendar-item_red"></p>
+			<p class="UMC-widget__calendar-item UMC-widget__calendar-item_busy"></p>
 			<p class="UMC-widget__calendar-des-text">Занято</p>
 		</div>
 		<div class="UMC-widget__calendar-des-item">
@@ -233,6 +242,4 @@ while(count($arResult["TIME"]) < 6) {
 	</div>
 	<div class="UMC-widget__medic-id UMC-widget_class-hidden" data-medic="<?=$arResult["ID"]?>"></div>
 </section>
-<script>
-	window.umcwidget = new UMCWidget(window.UMCWidget);
-</script>
+<script src="https://unpkg.com/imask"></script>

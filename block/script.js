@@ -3,8 +3,12 @@ class UMCWidget {
   errorField = false;
 
   constructor(options) {
-    this.options = options;
-    this.options.id = document.querySelector('.UMC-widget__medic-id').dataset.medic;
+    this.options = options || {};
+    const node = document.querySelector('.UMC-widget__medic-id');
+    this.options.id = node.dataset.medic;
+    if (!this.options.id) {
+      this.options.id = node.textContent;
+    }
     this.API_URL = 'https://crm.charite.me/local/1bit/ajax.php';
     this.widget = document.querySelector('.UMC-widget');
     this._init();
@@ -922,3 +926,4 @@ class Input {
 	}
 }
 
+window.umcwidget = new UMCWidget();
