@@ -316,6 +316,7 @@ class Block {
     });
     element.classList.add('UMC-widget__list-item_selected');
     this.widget.state.setField(this.name, element.dataset.id);
+    console.log(this.widget.services.find(item => item.id === element.dataset.id));
     if (this.widget[this.next]) this.widget[this.next].init();
   }
 }
@@ -370,6 +371,7 @@ class ServiceArea extends Block {
   clickItem(element) {
     super.clickItem(element);
     this.price = element.dataset.cost;
+    this.widget.calendar._changeTimeFormat();
   }
 }
 
@@ -581,9 +583,22 @@ class TimeArea extends Block {
     this.textItem.textContent = `Время записи на ${day.day} ${this.months[day.month]}:`;
   }
 
+  setZero (n) {
+    return n < 10 ? '0' + n : n;
+  }
+
+  getISOString(date) {
+    return date.getFullYear()+'-'
+      + this.setZero(date.getMonth()+1)+'-'
+      + this.setZero(date.getDate())+'T'
+      + this.setZero(date.getHours())+':'
+      + this.setZero(date.getMinutes())+':'
+      + this.setZero(date.getSeconds());
+  }
+
   clickTimeElement(item) {
     const date = new Date(item);
-    this.widget.state.setField('dateTime', date.toISOString());
+    this.widget.state.setField('dateTime', this.getISOString(date));
     this.widget.modal._showModal();
   }
 
@@ -726,7 +741,7 @@ class Modal {
         break;
       }
       case 'error': {
-        this._changeScreen('inputs');
+        window.location.href = window.location.href;
         break;
       }
       default: {
