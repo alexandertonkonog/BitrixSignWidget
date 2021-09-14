@@ -316,7 +316,6 @@ class Block {
     });
     element.classList.add('UMC-widget__list-item_selected');
     this.widget.state.setField(this.name, element.dataset.id);
-    console.log(this.widget.services.find(item => item.id === element.dataset.id));
     if (this.widget[this.next]) this.widget[this.next].init();
   }
 }
@@ -424,6 +423,7 @@ class Calendar extends Block {
 
   init() {
     this.show();
+    this._init();
   }
 
   _changeTimeFormat() {
@@ -438,6 +438,7 @@ class Calendar extends Block {
     const userId = this.widget.state.getField('doctor_id');
     this.user = userId ? this.medics.find(item => item.id === userId) : this.medics[0];
     if (!this.user) return false;
+    this.timeArray = [];
     this.user.time.forEach((item) => {
       const start = new Date(item.time_start);
       const end = new Date(item.time_end);      
